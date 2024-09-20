@@ -26,7 +26,7 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white.withOpacity(0.3),
+      backgroundColor: Colors.black.withOpacity(0.05),
       body: Stack(
         children: [
           // Logo as the background
@@ -60,12 +60,12 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                       child: Text(
                         "Login",
                         style: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
+                            fontSize: 30, fontWeight: FontWeight.bold),
                       ),
                     ),
                     SizedBox(height: 15),
                     Text("ID Number"),
-                    SizedBox(height: 10),
+                    SizedBox(height: 5),
                     CustomTextFormField(
                       controller: idNumberController,
                       hintText: "ID Number",
@@ -77,9 +77,9 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 15),
-                    Text("Name"),
                     SizedBox(height: 10),
+                    Text("Name"),
+                    SizedBox(height: 5),
                     CustomTextFormField(
                       controller: nameController,
                       hintText: "Name",
@@ -91,7 +91,9 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                         return null;
                       },
                     ),
-                    SizedBox(height: 15),
+                    SizedBox(height: 10),
+                    Text("Colleges"),
+                    SizedBox(height: 5),
                     CustomDropdown(
                       options: options,
                       selectedValue: options[
