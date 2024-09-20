@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:voting_system/widgets/login_dropdown.dart';
 import 'package:voting_system/widgets/login_textformfield.dart';
@@ -11,7 +10,6 @@ class VotingsystemLogin extends StatefulWidget {
 }
 
 class _VotingsystemLoginState extends State<VotingsystemLogin> {
-  bool _isHiddenPassword = true;
   final formKey = GlobalKey<FormState>();
   TextEditingController idNumberController = TextEditingController();
   TextEditingController nameController = TextEditingController();
@@ -36,10 +34,12 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
             child: Container(
               height: 800,
               width: 800,
-              child: Image.asset(
-                'icons/plsp_logo2.png', // Update with your logo path
-                fit: BoxFit.cover,
-                colorBlendMode: BlendMode.darken,
+              child: ClipOval(
+                child: Image.asset(
+                  'icons/plsp_logo2.png', // Update with your logo path
+                  fit: BoxFit.cover,
+                  colorBlendMode: BlendMode.darken,
+                ),
               ),
             ),
           ),
@@ -52,17 +52,23 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
               child: Form(
                 key: formKey,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      "Login",
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Login",
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
                     ),
+                    SizedBox(height: 15),
+                    Text("ID Number"),
                     SizedBox(height: 10),
                     CustomTextFormField(
                       controller: idNumberController,
-                      hintText: "Student ID",
+                      hintText: "ID Number",
                       prefixIcon: const Icon(Icons.person),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -72,6 +78,8 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                       },
                     ),
                     SizedBox(height: 15),
+                    Text("Name"),
+                    SizedBox(height: 10),
                     CustomTextFormField(
                       controller: nameController,
                       hintText: "Name",
