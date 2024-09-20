@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:voting_system/screens/dashboard/studentDashboard/votingsystem_dashboard.dart';
 import 'package:voting_system/widgets/login_dropdown.dart';
 import 'package:voting_system/widgets/login_textformfield.dart';
 
@@ -31,12 +32,12 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
         children: [
           // Logo as the background
           Center(
-            child: Container(
-              height: 800,
-              width: 800,
+            child: SizedBox(
+              height: 700,
+              width: 700,
               child: ClipOval(
                 child: Image.asset(
-                  'icons/plsp_logo2.png', // Update with your logo path
+                  'icons/plsp_logo.png', // Update with your logo path
                   fit: BoxFit.cover,
                   colorBlendMode: BlendMode.darken,
                 ),
@@ -55,7 +56,7 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Align(
+                    const Align(
                       alignment: Alignment.center,
                       child: Text(
                         "Login",
@@ -63,9 +64,9 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                             fontSize: 30, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     Text("ID Number"),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     CustomTextFormField(
                       controller: idNumberController,
                       hintText: "ID Number",
@@ -118,11 +119,17 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                       ),
                       child: MaterialButton(
                         onPressed: () async {
-                          if (formKey.currentState?.validate() == true) {
-                            print("Login Clicked");
-                            print(
-                                "Selected Option: ${options[selectedOptionIndex]}"); // Print selected option
-                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => VotingsystemDashboard()),
+                          );
+
+                          // if (formKey.currentState?.validate() == true) {
+                          //   print("Login Clicked");
+                          //   print(
+                          //       "Selected Option: ${options[selectedOptionIndex]}"); // Print selected option
+                          // }
                         },
                         child: const Text(
                           "Login",

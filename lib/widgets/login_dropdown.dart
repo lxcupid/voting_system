@@ -46,8 +46,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
           isExpanded: true,
           icon: Icon(Icons.arrow_drop_down),
           iconSize: 24,
-          style:
-              widget.textStyle ?? TextStyle(color: Colors.black, fontSize: 16),
+          style: widget.textStyle ?? TextStyle(color: Colors.black),
           items: widget.options.map((String value) {
             return DropdownMenuItem<String>(
               value: value,
