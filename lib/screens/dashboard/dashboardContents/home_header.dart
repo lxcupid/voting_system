@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 class HomeHeader extends StatefulWidget {
   final VoidCallback onMenuPressed;
+  final String user;
 
-  const HomeHeader({super.key, required this.onMenuPressed});
+  const HomeHeader(
+      {super.key, required this.onMenuPressed, required this.user});
 
   @override
   State<HomeHeader> createState() => _HomeHeaderState();
@@ -30,7 +32,7 @@ class _HomeHeaderState extends State<HomeHeader> {
           ),
           const SizedBox(width: 10),
           Text(
-            'Hi! Student $studentID',
+            'Hi! ${widget.user} ${studentID}',
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
         ],
