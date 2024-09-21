@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:voting_system/screens/dashboard/adminDashboard/admin_colleges.dart';
+import 'package:voting_system/screens/dashboard/adminDashboard/admin_dashboard.dart';
+import 'package:voting_system/screens/dashboard/adminDashboard/admin_history.dart';
+import 'package:voting_system/screens/dashboard/adminDashboard/admin_home.dart';
+import 'package:voting_system/screens/dashboard/dashboardContents/admin_drawer.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/home_header.dart';
-import 'package:voting_system/screens/dashboard/dashboardContents/left_drawer.dart';
 
-class VotingsystemDashboard extends StatefulWidget {
-  const VotingsystemDashboard({super.key});
+class Adminsystemdashboard extends StatefulWidget {
+  const Adminsystemdashboard({super.key});
 
   @override
-  _VotingsystemDashboardState createState() => _VotingsystemDashboardState();
+  _AdminsystemdashboardState createState() => _AdminsystemdashboardState();
 }
 
-class _VotingsystemDashboardState extends State<VotingsystemDashboard> {
+class _AdminsystemdashboardState extends State<Adminsystemdashboard> {
   bool isDrawerCollapsed = false;
   String currentScreen = 'Home';
 
@@ -21,7 +25,7 @@ class _VotingsystemDashboardState extends State<VotingsystemDashboard> {
           AnimatedContainer(
             width: isDrawerCollapsed ? 70 : 250,
             duration: const Duration(milliseconds: 300),
-            child: LeftDrawer(
+            child: AdminDrawer(
               isCollapsed: isDrawerCollapsed,
               onMenuPressed: toggleDrawer,
               onScreenSelected: changeScreen,
@@ -34,13 +38,16 @@ class _VotingsystemDashboardState extends State<VotingsystemDashboard> {
               children: [
                 HomeHeader(
                   onMenuPressed: toggleDrawer,
-                  user: 'Student',
+                  user: 'Admin',
                 ),
                 Expanded(
                   child: Container(
                     color: Colors.white,
-                    child: Center(
-                      child: getCurrentScreen(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Center(
+                        child: getCurrentScreen(),
+                      ),
                     ),
                   ),
                 ),
@@ -66,13 +73,16 @@ class _VotingsystemDashboardState extends State<VotingsystemDashboard> {
 
   Widget getCurrentScreen() {
     switch (currentScreen) {
-      case 'Profile':
-        return const Text('Profile Screen');
-      case 'Voting Line':
-        return const Text('Voting Line Screen');
+      case 'Dashboard':
+        return DashScreen();
+      case 'History':
+        return AdminHistory();
+      case 'College':
+        return AdminColleges();
       case 'Home':
+        return AdminHome();
       default:
-        return const Text('Home Screen');
+        return AdminHome();
     }
   }
 }
