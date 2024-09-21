@@ -1,0 +1,40 @@
+import 'package:flutter/material.dart';
+
+class HomeHeader extends StatefulWidget {
+  final VoidCallback onMenuPressed;
+
+  const HomeHeader({super.key, required this.onMenuPressed});
+
+  @override
+  State<HomeHeader> createState() => _HomeHeaderState();
+}
+
+class _HomeHeaderState extends State<HomeHeader> {
+  String studentID = '474151';
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.green,
+      height: 60,
+      child: Row(
+        children: [
+          // Menu Icon to collapse/expand the drawer
+          IconButton(
+            icon: const Icon(
+              Icons.menu,
+              size: 30,
+              color: Colors.white,
+            ),
+            onPressed: widget.onMenuPressed, // Trigger the drawer toggle
+          ),
+          const SizedBox(width: 10),
+          Text(
+            'Hi! Student $studentID',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+}
