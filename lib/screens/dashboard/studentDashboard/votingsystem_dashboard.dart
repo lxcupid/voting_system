@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/home_header.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/left_drawer.dart';
+import 'package:voting_system/screens/dashboard/studentDashboard/votingsystem_home.dart';
+import 'package:voting_system/screens/dashboard/studentDashboard/votinsystem_voting_line.dart';
 
 class VotingsystemDashboard extends StatefulWidget {
   const VotingsystemDashboard({super.key});
@@ -65,13 +67,11 @@ class _VotingsystemDashboardState extends State<VotingsystemDashboard> {
 
   Widget getCurrentScreen() {
     switch (currentScreen) {
-      case 'Profile':
-        return const Text('Profile Screen');
       case 'Voting Line':
-        return const Text('Voting Line Screen');
+        return VotinsystemVotingLine();
       case 'Home':
       default:
-        return const Text('Home Screen');
+        return VotingsystemHome(); // Return the actual widget for Home
     }
   }
 }

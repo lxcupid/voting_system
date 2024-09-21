@@ -22,59 +22,57 @@ class LeftDrawer extends StatefulWidget {
 class _LeftDrawerState extends State<LeftDrawer> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          // Menu icon to collapse/expand the drawer
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            height: 60,
-            color: Colors.green,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Image.asset(
-                'icons/plsp_logo1.png',
-                height: 50,
-                width: 50,
-              ),
+    return ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        // Menu icon to collapse/expand the drawer
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          height: 60,
+          color: Colors.green,
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Image.asset(
+              'icons/plsp_logo1.png',
+              height: 50,
+              width: 50,
             ),
           ),
+        ),
 
-          // Drawer Items with conditional text visibility
-          CustomDrawerItem(
-            icon: Icons.home,
-            text: 'Home',
-            isCollapsed: widget.isCollapsed,
-            isSelected: widget.currentScreen == 'Home', // Check if selected
-            onTap: () {
-              widget.onScreenSelected('Home'); // Change to Home screen
-            },
-          ),
-          CustomDrawerItem(
-            icon: Icons.account_circle,
-            text: 'Voting Line',
-            isCollapsed: widget.isCollapsed,
-            isSelected:
-                widget.currentScreen == 'Voting Line', // Check if selected
-            onTap: () {
-              widget.onScreenSelected(
-                  'Voting Line'); // Change to Voting Line screen
-            },
-          ),
-          const Divider(),
-          CustomDrawerItem(
-            icon: Icons.logout,
-            text: 'Logout',
-            isCollapsed: widget.isCollapsed,
-            isSelected: false,
-            onTap: () {
-              Navigator.pop(context);
-              // Perform logout action
-            },
-          ),
-        ],
-      ),
+        // Drawer Items with conditional text visibility
+        CustomDrawerItem(
+          icon: Icons.home,
+          text: 'Home',
+          isCollapsed: widget.isCollapsed,
+          isSelected: widget.currentScreen == 'Home', // Check if selected
+          onTap: () {
+            widget.onScreenSelected('Home'); // Change to Home screen
+          },
+        ),
+        CustomDrawerItem(
+          icon: Icons.account_circle,
+          text: 'Voting Line',
+          isCollapsed: widget.isCollapsed,
+          isSelected:
+              widget.currentScreen == 'Voting Line', // Check if selected
+          onTap: () {
+            widget.onScreenSelected(
+                'Voting Line'); // Change to Voting Line screen
+          },
+        ),
+        const Divider(),
+        CustomDrawerItem(
+          icon: Icons.logout,
+          text: 'Logout',
+          isCollapsed: widget.isCollapsed,
+          isSelected: false,
+          onTap: () {
+            Navigator.pop(context);
+            // Perform logout action
+          },
+        ),
+      ],
     );
   }
 }
@@ -87,6 +85,7 @@ class CustomDrawerItem extends StatelessWidget {
   final GestureTapCallback onTap;
 
   const CustomDrawerItem({
+    super.key,
     required this.icon,
     required this.text,
     required this.isCollapsed,
