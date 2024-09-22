@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:voting_system/screens/dashboard/adminDashboard/adminMainScreen.dart';
 import 'package:voting_system/screens/votingsystem_login.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -20,6 +21,6 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const VotingsystemLogin());
+        home: const Adminsystemdashboard());
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:voting_system/screens/dashboard/adminDashboard/admin_colleges.dart';
+import 'package:voting_system/screens/dashboard/adminDashboard/admin_election.dart';
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_dashboard.dart';
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_history.dart';
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_home.dart';
@@ -77,8 +77,8 @@ class _AdminsystemdashboardState extends State<Adminsystemdashboard> {
         return DashScreen();
       case 'History':
         return AdminHistory();
-      case 'College':
-        return AdminColleges();
+      case 'Election':
+        return AdminElection();
       case 'Home':
         return AdminHome();
       default:
