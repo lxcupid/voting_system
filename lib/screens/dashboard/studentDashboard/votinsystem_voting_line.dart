@@ -13,9 +13,9 @@ class VotinsystemVotingLine extends StatefulWidget {
 }
 
 class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
-  Candidate? selectedPresident; // Separate variable for President
+  Candidate? selectedPresident;
   Candidate? selectedVicePresident;
-  Candidate? selectedSecretary; // Separate variable for Vice President
+  Candidate? selectedSecretary;
   int? selectedId;
 
   List<Candidate> getCandidatesByPosition(String position) {
@@ -47,76 +47,75 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                       candidates: presidentCandidates,
                       onChanged: (Candidate? newCandidate) {
                         setState(() {
-                          selectedPresident =
-                              newCandidate; // Update the selected President
+                          selectedPresident = newCandidate;
                           selectedId = newCandidate?.candidateId;
-                          print("Selected President ID: $selectedId");
                           Provider.of<SelectedCandidateProvider>(context,
                                   listen: false)
                               .setPresidentID(selectedId ?? -1);
                         });
                       },
                     ),
-                    SizedBox(
-                      height: 15,
-                    ),
+                    SizedBox(height: 15),
                     CandidateDropdown(
                       positionLabel: 'Vice President: ',
-                      selectedCandidate:
-                          selectedVicePresident, // Use separate variable
+                      selectedCandidate: selectedVicePresident,
                       candidates: vpresidentCandidates,
                       onChanged: (Candidate? newCandidate) {
                         setState(() {
-                          selectedVicePresident =
-                              newCandidate; // Update the selected Vice President
+                          selectedVicePresident = newCandidate;
                           selectedId = newCandidate?.candidateId;
-                          print("Selected Vice President ID: $selectedId");
                           Provider.of<SelectedCandidateProvider>(context,
                                   listen: false)
                               .setVicepresidentID(selectedId ?? -1);
                         });
                       },
                     ),
-                    SizedBox(
-                      height: 15,
-                    ),
+                    SizedBox(height: 15),
                     CandidateDropdown(
                       positionLabel: 'Secretary: ',
-                      selectedCandidate:
-                          selectedSecretary, // Use separate variable
+                      selectedCandidate: selectedSecretary,
                       candidates: secretaryCandidates,
                       onChanged: (Candidate? newCandidate) {
                         setState(() {
-                          selectedSecretary =
-                              newCandidate; // Update the selected Vice President
+                          selectedSecretary = newCandidate;
                           selectedId = newCandidate?.candidateId;
-                          print("Selected Secretary ID: $selectedId");
                           Provider.of<SelectedCandidateProvider>(context,
                                   listen: false)
                               .setSecretaryID(selectedId ?? -1);
                         });
                       },
                     ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    const SizedBox(height: 15),
+                    SizedBox(height: 15),
                     ElevatedButton(
                       onPressed: () {
-                        // Access the provider to get the current selected candidate model
                         final selectedCandidates =
                             Provider.of<SelectedCandidateProvider>(context,
                                     listen: false)
                                 .elected;
 
-                        // Print the current selected candidate model
-                        print("Selected Candidates:");
-                        print(
-                            "President ID: ${selectedCandidates.presidentId}");
-                        print(
-                            "Vice President ID: ${selectedCandidates.vicePresidentId}");
-                        print(
-                            "Secretary ID: ${selectedCandidates.secretaryId}");
+                        // Show a dialog box with the selected candidates
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text("Selected Candidates"),
+                              content: Text(
+                                "President ID: ${selectedCandidates.presidentId}\n"
+                                "Vice President ID: ${selectedCandidates.vicePresidentId}\n"
+                                "Secretary ID: ${selectedCandidates.secretaryId}",
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
+                                  },
+                                  child: const Text("OK"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
                       child: const Text("Send"),
                     ),
