@@ -11,7 +11,7 @@ class CustomDropdown extends StatefulWidget {
   const CustomDropdown({
     Key? key,
     required this.options,
-    this.hintText = 'Select an option',
+    required this.hintText,
     this.selectedValue,
     this.onChanged,
     this.borderRadius = 8.0,

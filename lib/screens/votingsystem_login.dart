@@ -15,12 +15,12 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
   TextEditingController idNumberController = TextEditingController();
   TextEditingController nameController = TextEditingController();
 
-  int selectedOptionIndex = 0; // Use an index to track the selected option
+  String? selectedValue; // Use String? to allow null value initially
 
   final List<String> options = [
-    'College of Computer Study and Tecnhnology',
-    'Computer of Engineering',
-    'Collge of Tourism and Hospitality Management',
+    'College of Computer Study and Technology',
+    'College of Engineering',
+    'College of Tourism and Hospitality Management',
     'College of Accountancy'
   ];
 
@@ -65,7 +65,7 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                       ),
                     ),
                     const SizedBox(height: 15),
-                    Text("ID Number"),
+                    const Text("ID Number"),
                     const SizedBox(height: 5),
                     CustomTextFormField(
                       controller: idNumberController,
@@ -93,23 +93,23 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                       },
                     ),
                     const SizedBox(height: 10),
-                    Text("Colleges"),
-                    SizedBox(height: 5),
+                    const Text("Colleges"),
+                    const SizedBox(height: 5),
                     CustomDropdown(
                       options: options,
-                      selectedValue: options[
-                          selectedOptionIndex], // Use the selected index to get the string
-                      hintText: 'Choose an option',
+                      selectedValue: selectedValue, // Allow null initially
+                      hintText:
+                          'Choose an option', // Hint text will show initially
                       borderRadius: 12.0,
-                      textStyle: TextStyle(fontSize: 16),
+                      textStyle: const TextStyle(fontSize: 16),
                       onChanged: (value) {
                         setState(() {
-                          selectedOptionIndex = options
-                              .indexOf(value!); // Update the selected index
+                          selectedValue =
+                              value; // Update selected value when chosen
                         });
                       },
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Container(
                       height: 60,
                       width: double.infinity,
@@ -119,17 +119,17 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                       ),
                       child: MaterialButton(
                         onPressed: () async {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => VotingsystemDashboard()),
-                          );
-
-                          // if (formKey.currentState?.validate() == true) {
-                          //   print("Login Clicked");
-                          //   print(
-                          //       "Selected Option: ${options[selectedOptionIndex]}"); // Print selected option
-                          // }
+                          if (formKey.currentState?.validate() == true) {
+                            print("Login Clicked");
+                            print(
+                                "Selected Option: $selectedValue"); // Print selected option
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      VotingsystemDashboard()),
+                            );
+                          }
                         },
                         child: const Text(
                           "Login",
