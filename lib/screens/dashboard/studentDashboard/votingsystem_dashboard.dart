@@ -41,9 +41,7 @@ class _VotingsystemDashboardState extends State<VotingsystemDashboard> {
                 Expanded(
                   child: Container(
                     color: Colors.white,
-                    child: Center(
-                      child: getCurrentScreen(),
-                    ),
+                    child: getCurrentScreen(),
                   ),
                 ),
               ],
