@@ -103,7 +103,67 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                         });
                       },
                     ),
-                    const SizedBox(height: 15),
+                    SizedBox(height: 15),
+                    CandidateDropdown(
+                      positionLabel: 'Treasurer: ',
+                      selectedCandidate: selectedSecretary,
+                      candidates: secretaryCandidates,
+                      onChanged: (Candidate? newCandidate) {
+                        setState(() {
+                          selectedSecretary = newCandidate;
+                          selectedId = newCandidate?.candidateId;
+                          Provider.of<SelectedCandidateProvider>(context,
+                                  listen: false)
+                              .setSecretaryID(selectedId ?? -1);
+                        });
+                      },
+                    ),
+                    SizedBox(height: 15),
+                    CandidateDropdown(
+                      positionLabel: 'Data Privacy: ',
+                      selectedCandidate: selectedSecretary,
+                      candidates: secretaryCandidates,
+                      onChanged: (Candidate? newCandidate) {
+                        setState(() {
+                          selectedSecretary = newCandidate;
+                          selectedId = newCandidate?.candidateId;
+                          Provider.of<SelectedCandidateProvider>(context,
+                                  listen: false)
+                              .setSecretaryID(selectedId ?? -1);
+                        });
+                      },
+                    ),
+                    SizedBox(height: 15),
+                    CandidateDropdown(
+                      positionLabel: 'IT Represantative: ',
+                      selectedCandidate: selectedSecretary,
+                      candidates: secretaryCandidates,
+                      onChanged: (Candidate? newCandidate) {
+                        setState(() {
+                          selectedSecretary = newCandidate;
+                          selectedId = newCandidate?.candidateId;
+                          Provider.of<SelectedCandidateProvider>(context,
+                                  listen: false)
+                              .setSecretaryID(selectedId ?? -1);
+                        });
+                      },
+                    ),
+                    SizedBox(height: 15),
+                    CandidateDropdown(
+                      positionLabel: 'IS Representative: ',
+                      selectedCandidate: selectedSecretary,
+                      candidates: secretaryCandidates,
+                      onChanged: (Candidate? newCandidate) {
+                        setState(() {
+                          selectedSecretary = newCandidate;
+                          selectedId = newCandidate?.candidateId;
+                          Provider.of<SelectedCandidateProvider>(context,
+                                  listen: false)
+                              .setSecretaryID(selectedId ?? -1);
+                        });
+                      },
+                    ),
+                    SizedBox(height: 15),
                     ElevatedButton(
                       onPressed: () {
                         final selectedCandidates =
