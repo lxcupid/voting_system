@@ -4,6 +4,7 @@ import 'package:voting_system/core/models/candidate_model.dart';
 import 'package:voting_system/core/providers/selected_candidate_provider.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/candidate_dropdown.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/candidate_widget.dart';
+import 'package:voting_system/screens/dashboard/dashboardContents/candidates_dialog_box.dart';
 
 class VotinsystemVotingLine extends StatefulWidget {
   const VotinsystemVotingLine({super.key});
@@ -22,6 +23,23 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
     return candidates
         .where((candidate) => candidate.position == position)
         .toList();
+  }
+
+  String getCandidateNameById(int? candidateId) {
+    if (candidateId == null || candidateId == -1) {
+      return 'None'; // Return 'None' if the candidateId is empty or invalid
+    }
+
+    final candidate = candidates.firstWhere(
+      (candidate) => candidate.candidateId == candidateId,
+      orElse: () => Candidate(
+        candidateId: -1,
+        name: 'None', imageUrl: 'none', position: 'none',
+        motto: 'none', // Handle non-existent candidate by returning 'None'
+      ),
+    );
+
+    return candidate.name;
   }
 
   @override
@@ -70,7 +88,7 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                         });
                       },
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     CandidateDropdown(
                       positionLabel: 'Secretary: ',
                       selectedCandidate: selectedSecretary,
@@ -85,7 +103,7 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                         });
                       },
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     ElevatedButton(
                       onPressed: () {
                         final selectedCandidates =
@@ -93,26 +111,22 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                                     listen: false)
                                 .elected;
 
-                        // Show a dialog box with the selected candidates
+                        // Retrieve candidate names based on selected IDs
+                        final presidentName = getCandidateNameById(
+                            selectedCandidates.presidentId);
+                        final vicePresidentName = getCandidateNameById(
+                            selectedCandidates.vicePresidentId);
+                        final secretaryName = getCandidateNameById(
+                            selectedCandidates.secretaryId);
+
+                        // Show the custom dialog regardless of the selected candidates
                         showDialog(
                           context: context,
                           builder: (context) {
-                            return AlertDialog(
-                              title: const Text("Selected Candidates"),
-                              content: Text(
-                                "President ID: ${selectedCandidates.presidentId}\n"
-                                "Vice President ID: ${selectedCandidates.vicePresidentId}\n"
-                                "Secretary ID: ${selectedCandidates.secretaryId}",
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                  child: const Text("OK"),
-                                ),
-                              ],
+                            return CandidatesDialogBox(
+                              presidentName: presidentName,
+                              vicePresidentName: vicePresidentName,
+                              secretaryName: secretaryName,
                             );
                           },
                         );
