@@ -73,13 +73,13 @@ class _AdminDrawerState extends State<AdminDrawer> {
             },
           ),
           CustomDrawerItem(
-            icon: Icons.how_to_vote,
-            text: 'Election',
+            icon: Icons.school,
+            text: 'Colleges',
             isCollapsed: widget.isCollapsed,
-            isSelected: widget.currentScreen == 'Election', // Check if selected
+            isSelected: widget.currentScreen == 'Colleges', // Check if selected
             onTap: () {
               widget
-                  .onScreenSelected('Election'); // Change to Voting Line screen
+                  .onScreenSelected('Colleges'); // Change to Voting Line screen
             },
           ),
           const Divider(),
