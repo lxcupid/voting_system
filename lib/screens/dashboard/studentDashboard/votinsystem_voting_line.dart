@@ -17,6 +17,10 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
   Candidate? selectedPresident;
   Candidate? selectedVicePresident;
   Candidate? selectedSecretary;
+  Candidate? selectedTreasurer;
+  Candidate? selectedDataPrivacy;
+  Candidate? selectedITRepresentative;
+  Candidate? selectedISRepresentative;
   int? selectedId;
 
   List<Candidate> getCandidatesByPosition(String position) {
@@ -47,6 +51,12 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
     final presidentCandidates = getCandidatesByPosition('President');
     final vpresidentCandidates = getCandidatesByPosition('Vice President');
     final secretaryCandidates = getCandidatesByPosition('Secretary');
+    final treasurerCandidates = getCandidatesByPosition('Treasurer');
+    final dataprivacyrCandidates = getCandidatesByPosition('Data Privacy');
+    final itrepresentativeCandidates =
+        getCandidatesByPosition('IT Representative');
+    final isrepresentativeCandidates =
+        getCandidatesByPosition('IS Representative');
 
     return Padding(
       padding: const EdgeInsets.all(12.0),
@@ -103,95 +113,153 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                         });
                       },
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     CandidateDropdown(
                       positionLabel: 'Treasurer: ',
-                      selectedCandidate: selectedSecretary,
-                      candidates: secretaryCandidates,
+                      selectedCandidate: selectedTreasurer,
+                      candidates: treasurerCandidates,
                       onChanged: (Candidate? newCandidate) {
                         setState(() {
-                          selectedSecretary = newCandidate;
+                          selectedTreasurer = newCandidate;
                           selectedId = newCandidate?.candidateId;
                           Provider.of<SelectedCandidateProvider>(context,
                                   listen: false)
-                              .setSecretaryID(selectedId ?? -1);
+                              .setTreasurerID(selectedId ?? -1);
                         });
                       },
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     CandidateDropdown(
                       positionLabel: 'Data Privacy: ',
-                      selectedCandidate: selectedSecretary,
-                      candidates: secretaryCandidates,
+                      selectedCandidate: selectedDataPrivacy,
+                      candidates: dataprivacyrCandidates,
                       onChanged: (Candidate? newCandidate) {
                         setState(() {
-                          selectedSecretary = newCandidate;
+                          selectedDataPrivacy = newCandidate;
                           selectedId = newCandidate?.candidateId;
                           Provider.of<SelectedCandidateProvider>(context,
                                   listen: false)
-                              .setSecretaryID(selectedId ?? -1);
+                              .setDataprivacyID(selectedId ?? -1);
                         });
                       },
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     CandidateDropdown(
                       positionLabel: 'IT Represantative: ',
-                      selectedCandidate: selectedSecretary,
-                      candidates: secretaryCandidates,
+                      selectedCandidate: selectedITRepresentative,
+                      candidates: itrepresentativeCandidates,
                       onChanged: (Candidate? newCandidate) {
                         setState(() {
-                          selectedSecretary = newCandidate;
+                          selectedITRepresentative = newCandidate;
                           selectedId = newCandidate?.candidateId;
                           Provider.of<SelectedCandidateProvider>(context,
                                   listen: false)
-                              .setSecretaryID(selectedId ?? -1);
+                              .setITRepresentativeID(selectedId ?? -1);
                         });
                       },
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     CandidateDropdown(
                       positionLabel: 'IS Representative: ',
-                      selectedCandidate: selectedSecretary,
-                      candidates: secretaryCandidates,
+                      selectedCandidate: selectedISRepresentative,
+                      candidates: isrepresentativeCandidates,
                       onChanged: (Candidate? newCandidate) {
                         setState(() {
-                          selectedSecretary = newCandidate;
+                          selectedISRepresentative = newCandidate;
                           selectedId = newCandidate?.candidateId;
                           Provider.of<SelectedCandidateProvider>(context,
                                   listen: false)
-                              .setSecretaryID(selectedId ?? -1);
+                              .setISRepresentativeID(selectedId ?? -1);
                         });
                       },
                     ),
-                    SizedBox(height: 15),
-                    ElevatedButton(
-                      onPressed: () {
-                        final selectedCandidates =
-                            Provider.of<SelectedCandidateProvider>(context,
-                                    listen: false)
-                                .elected;
+                    const SizedBox(height: 15),
+                    Container(
+                      height: 60,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.green,
+                      ),
+                      child: MaterialButton(
+                        onPressed: () async {
+                          final selectedCandidates =
+                              Provider.of<SelectedCandidateProvider>(context,
+                                      listen: false)
+                                  .elected;
 
-                        // Retrieve candidate names based on selected IDs
-                        final presidentName = getCandidateNameById(
-                            selectedCandidates.presidentId);
-                        final vicePresidentName = getCandidateNameById(
-                            selectedCandidates.vicePresidentId);
-                        final secretaryName = getCandidateNameById(
-                            selectedCandidates.secretaryId);
+                          // Retrieve candidate names based on selected IDs
+                          final presidentName = getCandidateNameById(
+                              selectedCandidates.presidentId);
+                          final vicePresidentName = getCandidateNameById(
+                              selectedCandidates.vicePresidentId);
+                          final secretaryName = getCandidateNameById(
+                              selectedCandidates.secretaryId);
+                          final treasurerName = getCandidateNameById(
+                              selectedCandidates.treasurerId);
+                          final dataprivacyName = getCandidateNameById(
+                              selectedCandidates.dataprivacyId);
+                          final itrepresentativeName = getCandidateNameById(
+                              selectedCandidates.itrepresentativeId);
+                          final isrepresentativeName = getCandidateNameById(
+                              selectedCandidates.isrepresentativeId);
 
-                        // Show the custom dialog regardless of the selected candidates
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return CandidatesDialogBox(
-                              presidentName: presidentName,
-                              vicePresidentName: vicePresidentName,
-                              secretaryName: secretaryName,
-                            );
-                          },
-                        );
-                      },
-                      child: const Text("Send"),
+                          // Show the custom dialog regardless of the selected candidates
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return CandidatesDialogBox(
+                                presidentName: presidentName,
+                                vicePresidentName: vicePresidentName,
+                                secretaryName: secretaryName,
+                                treasurerName: treasurerName,
+                                dataprivacyName: dataprivacyName,
+                                itrepresentativeName: itrepresentativeName,
+                                isrepresentativeName: isrepresentativeName,
+                                onVotePressed: () {
+                                  Provider.of<SelectedCandidateProvider>(
+                                          context,
+                                          listen: false)
+                                      .resetSelections();
+
+                                  // Reset selected candidates in the state
+                                  setState(() {
+                                    selectedPresident = null;
+                                    selectedVicePresident = null;
+                                    selectedSecretary = null;
+                                    selectedTreasurer = null;
+                                    selectedDataPrivacy = null;
+                                    selectedITRepresentative = null;
+                                    selectedISRepresentative = null;
+                                    selectedId = null; // Reset selected ID
+                                  });
+
+                                  // Show success message
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Vote successfully added!'),
+                                      duration: Duration(seconds: 4),
+                                    ),
+                                  );
+
+                                  Navigator.of(context).pop();
+                                },
+                                oncancelPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              );
+                            },
+                          );
+                        },
+                        child: const Text(
+                          "Verify",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -201,6 +269,8 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
               width: 400,
               child: selectedId != null
                   ? CandidateWidget(
+                      imageHeight: 300,
+                      imageWidth: 250,
                       alignment: MainAxisAlignment.center,
                       candidate: candidates
                           .firstWhere((c) => c.candidateId == selectedId),

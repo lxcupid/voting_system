@@ -3,6 +3,8 @@ import 'package:voting_system/core/models/candidate_model.dart';
 
 class CandidateWidget extends StatelessWidget {
   final Candidate candidate;
+  final double? imageHeight;
+  final double? imageWidth;
   final MainAxisAlignment alignment; // Change to non-nullable with default
   final bool showMotto; // Parameter to control motto visibility
 
@@ -10,8 +12,9 @@ class CandidateWidget extends StatelessWidget {
     super.key,
     required this.candidate,
     this.showMotto = true,
-    this.alignment =
-        MainAxisAlignment.start, // Default to start if not specified
+    this.alignment = MainAxisAlignment.start,
+    this.imageHeight = 200,
+    this.imageWidth = 150, // Default to start if not specified
   });
 
   @override
@@ -28,8 +31,8 @@ class CandidateWidget extends StatelessWidget {
           mainAxisAlignment: alignment,
           children: [
             SizedBox(
-              height: 200,
-              width: 150,
+              height: imageHeight,
+              width: imageWidth,
               child: Image.network(
                 candidate.imageUrl,
                 fit: BoxFit.cover,

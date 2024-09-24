@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:voting_system/core/providers/selected_candidate_provider.dart';
 
 class CandidatesDialogBox extends StatefulWidget {
   final String presidentName;
   final String vicePresidentName;
   final String secretaryName;
+  final String treasurerName;
+  final String dataprivacyName;
+  final String itrepresentativeName;
+  final String isrepresentativeName;
+  final VoidCallback onVotePressed;
+  final VoidCallback oncancelPressed;
 
   const CandidatesDialogBox({
-    Key? key,
+    super.key,
     required this.presidentName,
     required this.vicePresidentName,
     required this.secretaryName,
-  }) : super(key: key);
+    required this.treasurerName,
+    required this.dataprivacyName,
+    required this.itrepresentativeName,
+    required this.isrepresentativeName,
+    required this.onVotePressed,
+    required this.oncancelPressed,
+  });
 
   @override
   State<CandidatesDialogBox> createState() => _CandidatesDialogBoxState();
@@ -20,17 +34,13 @@ class _CandidatesDialogBoxState extends State<CandidatesDialogBox> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Container(
         width: 400,
         padding: const EdgeInsets.all(20.0),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Colors.green, // Add a border if needed
+            color: Colors.black, // Add a border if needed
             width: 2,
           ),
           boxShadow: const [
@@ -61,22 +71,63 @@ class _CandidatesDialogBoxState extends State<CandidatesDialogBox> {
             _buildCandidateRow("Vice President", widget.vicePresidentName),
             const SizedBox(height: 10),
             _buildCandidateRow("Secretary", widget.secretaryName),
+            const SizedBox(height: 10),
+            _buildCandidateRow("Treasurer", widget.treasurerName),
+            const SizedBox(height: 10),
+            _buildCandidateRow("Data Privacy", widget.dataprivacyName),
+            const SizedBox(height: 10),
+            _buildCandidateRow(
+                "IT Representative", widget.itrepresentativeName),
+            const SizedBox(height: 10),
+            _buildCandidateRow(
+                "IS Representative", widget.isrepresentativeName),
             const SizedBox(height: 20),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                },
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  width: 100,
+                  height: 50,
+                  decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
+                    color: Colors.green,
+                  ),
+                  child: MaterialButton(
+                    onPressed: widget.oncancelPressed,
+                    child: const Text(
+                      "Cancel",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
-                child: const Text("Vote"),
-              ),
+                const SizedBox(
+                  width: 12,
+                ),
+                Container(
+                  width: 100,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.green,
+                  ),
+                  child: MaterialButton(
+                    onPressed: widget.onVotePressed,
+                    child: const Text(
+                      "Vote",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -88,7 +139,6 @@ class _CandidatesDialogBoxState extends State<CandidatesDialogBox> {
     return Text(
       "$position: $name",
       style: const TextStyle(
-        fontWeight: FontWeight.bold,
         fontSize: 16,
       ),
     );

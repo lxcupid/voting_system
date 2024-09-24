@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:voting_system/core/user_cred.dart';
 import 'package:voting_system/screens/dashboard/studentDashboard/votingsystem_dashboard.dart';
 import 'package:voting_system/widgets/login_dropdown.dart';
 import 'package:voting_system/widgets/login_textformfield.dart';
@@ -23,6 +24,19 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
     'College of Tourism and Hospitality Management',
     'College of Accountancy'
   ];
+
+  bool validateCredentials(String id, String name) {
+    // Convert ID to integer for matching
+    int? userID = int.tryParse(id);
+
+    // Check if user exists with matching ID and name
+    for (var user in sampleUser) {
+      if (user['userID'] == userID && user['username'] == name) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,15 +134,26 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                       child: MaterialButton(
                         onPressed: () async {
                           if (formKey.currentState?.validate() == true) {
-                            print("Login Clicked");
-                            print(
-                                "Selected Option: $selectedValue"); // Print selected option
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      VotingsystemDashboard()),
-                            );
+                            String idNumber = idNumberController.text;
+                            String name = nameController.text;
+
+                            // Check if credentials match the user list
+                            if (validateCredentials(idNumber, name)) {
+                              idNumberController.clear();
+                              nameController.clear();
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const VotingsystemDashboard()),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Center(
+                                        child: Text("Invalid ID or name"))),
+                              );
+                            }
                           }
                         },
                         child: const Text(

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:voting_system/core/providers/selected_candidate_provider.dart'; // Import your provider
-import 'package:voting_system/screens/dashboard/adminDashboard/adminMainScreen.dart';
-import 'package:voting_system/screens/dashboard/studentDashboard/votingsystem_dashboard.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:voting_system/screens/dashboard/studentDashboard/votingsystem_dashboard.dart';
+import 'package:voting_system/screens/votingsystem_login.dart';
 
 void main() {
   runApp(
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Adminsystemdashboard(),
+      home: const VotingsystemLogin(),
     );
   }
 }

@@ -20,39 +20,40 @@ class CandidateDropdown extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 140,
+          width: 150,
           child: Text(
             positionLabel,
             style: const TextStyle(fontSize: 16),
           ),
         ),
         const SizedBox(width: 15),
-        Container(
-          width: 500,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<Candidate?>(
-              value: selectedCandidate,
-              hint: const Text('Select Candidate'),
-              isExpanded: false,
-              icon: const Icon(Icons.arrow_drop_down),
-              iconSize: 24,
-              style: const TextStyle(color: Colors.black, fontSize: 14),
-              items: candidates.map((candidate) {
-                return DropdownMenuItem<Candidate?>(
-                  value: candidate, // Use the Candidate object as value
-                  child: Text(candidate.name),
-                );
-              }).toList(),
-              onChanged: (Candidate? newCandidate) {
-                onChanged(
-                    newCandidate); // Pass the Candidate object to onChanged
-              },
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.grey),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<Candidate?>(
+                value: selectedCandidate,
+                hint: const Text('Select Candidate'),
+                isExpanded: false,
+                icon: const Icon(Icons.arrow_drop_down),
+                iconSize: 24,
+                style: const TextStyle(color: Colors.black, fontSize: 14),
+                items: candidates.map((candidate) {
+                  return DropdownMenuItem<Candidate?>(
+                    value: candidate, // Use the Candidate object as value
+                    child: Text(candidate.name),
+                  );
+                }).toList(),
+                onChanged: (Candidate? newCandidate) {
+                  onChanged(
+                      newCandidate); // Pass the Candidate object to onChanged
+                },
+              ),
             ),
           ),
         ),
