@@ -77,7 +77,7 @@ class _AdminsystemdashboardState extends State<Adminsystemdashboard> {
         return DashScreen();
       case 'History':
         return AdminHistory();
-      case 'Election':
+      case 'Colleges':
         return AdminElection();
       case 'Home':
         return AdminHome();
