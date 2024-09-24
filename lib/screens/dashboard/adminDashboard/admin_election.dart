@@ -25,59 +25,85 @@ class _AdminElectionState extends State<AdminElection> {
           sectionone
               ? Expanded(
                   child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
                     child: Column(
-                      children: List.generate(20, (index) {
-                        return GestureDetector(
-                          onTap: () {
-                            // Handle tap event
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            margin: EdgeInsets.symmetric(vertical: 10),
-                            padding: EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                                color: Colors.green[100],
-                                borderRadius: BorderRadius.circular(20)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '  Collage Selection:',
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontFamily: 'Arial',
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          children: List.generate(5, (index) {
+                            return GestureDetector(
+                              onTap: () {
+                                // Handle tap event
+                              },
+                              child: Container(
+                                height: 300,
+                                width:
+                                    300, // You can set a fixed width for each item
+                                margin: EdgeInsets.symmetric(
+                                    horizontal:
+                                        10), // Adjust for horizontal spacing
+                                padding: EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.green[100],
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Column(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Election Title $index'),
-                                    Text('text here $index'),
-                                    Text('Date time sched $index'),
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Election Title $index'),
+                                        Text('text here $index'),
+                                        Text('Date time sched $index'),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {},
+                                          icon: Icon(
+                                            Icons.edit,
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            showCustomDialog(context,
+                                                onConfirm: function,
+                                                title: 'Delete an Election.',
+                                                message:
+                                                    'Delete the Selected Election.');
+                                          },
+                                          icon: Icon(
+                                            Icons.delete,
+                                            color: Colors.red,
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ],
                                 ),
-                                Row(
-                                  children: [
-                                    IconButton(
-                                        onPressed: () {},
-                                        icon: Icon(
-                                          Icons.edit,
-                                          color: Colors.green,
-                                        )),
-                                    IconButton(
-                                        onPressed: () {
-                                          showCustomDialog(context,
-                                              onConfirm: function,
-                                              title: 'Delete an Election.',
-                                              message:
-                                                  'Delete the Selected Election.');
-                                        },
-                                        icon: Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                        ))
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
+                              ),
+                            );
+                          }),
+                        ),
+                      ],
                     ),
                   ),
                 )
@@ -90,7 +116,7 @@ class _AdminElectionState extends State<AdminElection> {
                   )),
                 ),
           const SizedBox(height: 10),
-          if (sectionone)
+          if (sectiontwo)
             Align(
               alignment: Alignment.bottomLeft,
               child: Container(

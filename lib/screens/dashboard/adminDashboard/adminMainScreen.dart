@@ -3,6 +3,7 @@ import 'package:voting_system/screens/dashboard/adminDashboard/admin_election.da
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_dashboard.dart';
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_history.dart';
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_home.dart';
+import 'package:voting_system/screens/dashboard/adminDashboard/home/home_admin.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/admin_drawer.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/home_header.dart';
 
@@ -80,9 +81,9 @@ class _AdminsystemdashboardState extends State<Adminsystemdashboard> {
       case 'Colleges':
         return AdminElection();
       case 'Home':
-        return AdminHome();
+        return HomeAdmin();
       default:
-        return AdminHome();
+        return HomeAdmin();
     }
   }
 }
