@@ -1,10 +1,4 @@
-// ignore_for_file: prefer_final_fields
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:voting_system/screens/dashboard/adminDashboard/admin_home.dart';
-import 'package:voting_system/screens/dashboard/adminDashboard/create_election.dart';
-import 'package:voting_system/widgets/dialogbox.dart';
 
 class AdminElection extends StatefulWidget {
   const AdminElection({super.key});
@@ -13,19 +7,11 @@ class AdminElection extends StatefulWidget {
   State<AdminElection> createState() => _AdminElectionState();
 }
 
-void function() {
-  print('object');
-}
-
 class _AdminElectionState extends State<AdminElection> {
-  bool sectionone = true;
-  bool sectiontwo = false;
-
-  // List<String> collages = ['CCST', 'COE', 'COA', 'CTHM', 'CON'];
-
   String? selectedItem = 'CCST'; // Default selected item
   final List<String> items = ['CCST', 'COE', 'COA', 'CTHM', 'CON'];
 
+  // Define controllers and fields for each position
   List<TextEditingController> _controllersPres = [];
   List<Widget> _fieldsPres = [];
   List<TextEditingController> _controllersVice = [];
@@ -43,258 +29,283 @@ class _AdminElectionState extends State<AdminElection> {
   List<TextEditingController> _controllersISR = [];
   List<Widget> _fieldsISR = [];
 
-  void _addTextFieldPres() {
-    // Create a new controller for each TextField
-    TextEditingController _controllerPres = TextEditingController();
-    _controllersPres.add(_controllerPres);
-    setState(() {
-      _fieldsPres.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: TextField(
-            controller: _controllerPres,
-            decoration: InputDecoration(
-              suffix: IconButton(
-                onPressed: () {
-                  print('object');
-                },
-                icon: Icon(
-                  Icons.image,
-                  color: Colors.black,
-                ),
+  @override
+  void initState() {
+    super.initState();
+    _initializeFields(); // Initialize with 3 fields for each position.
+  }
+
+  void _initializeFields() {
+    _addThreeTextFieldsPres();
+    _addThreeTextFieldsVice();
+    _addThreeTextFieldsSec();
+    _addThreeTextFieldsTre();
+    _addThreeTextFieldsAud();
+    _addThreeTextFieldsData();
+    _addThreeTextFieldsITR();
+    _addThreeTextFieldsISR();
+  }
+
+  // Function to add 3 text fields for President
+  void _addThreeTextFieldsPres() {
+    for (int i = 0; i < 3; i++) {
+      TextEditingController _controllerPres = TextEditingController();
+      _controllersPres.add(_controllerPres);
+      setState(() {
+        _fieldsPres.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: TextField(
+              controller: _controllerPres,
+              decoration: InputDecoration(
+                labelText: 'Candidate ${_fieldsPres.length + 1}',
+                border: OutlineInputBorder(),
               ),
-              labelText: 'Candidate ${_fieldsPres.length + 1}',
-              border: OutlineInputBorder(),
             ),
           ),
-        ),
-      );
-    });
-  }
-
-  void _removeTextFieldPres() {
-    if (_fieldsPres.isNotEmpty && _controllersPres.isNotEmpty) {
-      // Remove the last text field and its controller
-      setState(() {
-        _fieldsPres.removeLast();
-        _controllersPres.removeLast();
+        );
       });
     }
   }
 
-  void _addTextFieldVice() {
-    // Create a new controller for each TextField
-    TextEditingController _controllerVice = TextEditingController();
-    _controllersVice.add(_controllerVice);
-
-    setState(() {
-      _fieldsVice.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: TextField(
-            controller: _controllerVice,
-            decoration: InputDecoration(
-              labelText: 'Candidate ${_fieldsVice.length + 1}',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
-  void _removeTextFieldVice() {
-    if (_fieldsVice.isNotEmpty && _controllersVice.isNotEmpty) {
-      // Remove the last text field and its controller
+  // Function to remove the last 3 text fields for President
+  void _removeThreeTextFieldsPres() {
+    if (_fieldsPres.length >= 3) {
       setState(() {
-        _fieldsVice.removeLast();
-        _controllersVice.removeLast();
+        _fieldsPres.removeRange(_fieldsPres.length - 3, _fieldsPres.length);
+        _controllersPres.removeRange(
+            _controllersPres.length - 3, _controllersPres.length);
       });
     }
   }
 
-  void _addTextFieldSec() {
-    // Create a new controller for each TextField
-    TextEditingController _controllerSec = TextEditingController();
-    _controllersSec.add(_controllerSec);
-
-    setState(() {
-      _fieldsSec.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: TextField(
-            controller: _controllerSec,
-            decoration: InputDecoration(
-              labelText: 'Candidate ${_fieldsSec.length + 1}',
-              border: OutlineInputBorder(),
+  // Function to add 3 text fields for Vice President
+  void _addThreeTextFieldsVice() {
+    for (int i = 0; i < 3; i++) {
+      TextEditingController _controllerVice = TextEditingController();
+      _controllersVice.add(_controllerVice);
+      setState(() {
+        _fieldsVice.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: TextField(
+              controller: _controllerVice,
+              decoration: InputDecoration(
+                labelText: 'Candidate ${_fieldsVice.length + 1}',
+                border: OutlineInputBorder(),
+              ),
             ),
           ),
-        ),
-      );
-    });
-  }
-
-  void _removeTextFieldSec() {
-    if (_fieldsSec.isNotEmpty && _controllersSec.isNotEmpty) {
-      // Remove the last text field and its controller
-      setState(() {
-        _fieldsSec.removeLast();
-        _controllersSec.removeLast();
+        );
       });
     }
   }
 
-  void _addTextFieldTre() {
-    // Create a new controller for each TextField
-    TextEditingController _controllerTre = TextEditingController();
-    _controllersTre.add(_controllerTre);
-
-    setState(() {
-      _fieldsTre.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: TextField(
-            controller: _controllerTre,
-            decoration: InputDecoration(
-              labelText: 'Candidate ${_fieldsTre.length + 1}',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
-  void _removeTextFieldTre() {
-    if (_fieldsTre.isNotEmpty && _controllersTre.isNotEmpty) {
-      // Remove the last text field and its controller
+  // Function to remove the last 3 text fields for Vice President
+  void _removeThreeTextFieldsVice() {
+    if (_fieldsVice.length >= 3) {
       setState(() {
-        _fieldsTre.removeLast();
-        _controllersTre.removeLast();
+        _fieldsVice.removeRange(_fieldsVice.length - 3, _fieldsVice.length);
+        _controllersVice.removeRange(
+            _controllersVice.length - 3, _controllersVice.length);
       });
     }
   }
 
-  void _addTextFieldAud() {
-    // Create a new controller for each TextField
-    TextEditingController _controllerAud = TextEditingController();
-    _controllersAud.add(_controllerAud);
-
-    setState(() {
-      _fieldsAud.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: TextField(
-            controller: _controllerAud,
-            decoration: InputDecoration(
-              labelText: 'Candidate ${_fieldsAud.length + 1}',
-              border: OutlineInputBorder(),
+  // Function to add 3 text fields for Secretary
+  void _addThreeTextFieldsSec() {
+    for (int i = 0; i < 3; i++) {
+      TextEditingController _controllerSec = TextEditingController();
+      _controllersSec.add(_controllerSec);
+      setState(() {
+        _fieldsSec.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: TextField(
+              controller: _controllerSec,
+              decoration: InputDecoration(
+                labelText: 'Candidate ${_fieldsSec.length + 1}',
+                border: OutlineInputBorder(),
+              ),
             ),
           ),
-        ),
-      );
-    });
-  }
-
-  void _removeTextFieldAud() {
-    if (_fieldsAud.isNotEmpty && _controllersAud.isNotEmpty) {
-      // Remove the last text field and its controller
-      setState(() {
-        _fieldsAud.removeLast();
-        _controllersAud.removeLast();
+        );
       });
     }
   }
 
-  void _addTextFieldData() {
-    // Create a new controller for each TextField
-    TextEditingController _controllerData = TextEditingController();
-    _controllersData.add(_controllerData);
-
-    setState(() {
-      _fieldsData.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: TextField(
-            controller: _controllerData,
-            decoration: InputDecoration(
-              labelText: 'Candidate ${_fieldsData.length + 1}',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ),
-      );
-    });
-  }
-
-  void _removeTextFieldData() {
-    if (_fieldsData.isNotEmpty && _controllersData.isNotEmpty) {
-      // Remove the last text field and its controller
+  // Function to remove the last 3 text fields for Secretary
+  void _removeThreeTextFieldsSec() {
+    if (_fieldsSec.length >= 3) {
       setState(() {
-        _fieldsData.removeLast();
-        _controllersData.removeLast();
+        _fieldsSec.removeRange(_fieldsSec.length - 3, _fieldsSec.length);
+        _controllersSec.removeRange(
+            _controllersSec.length - 3, _controllersSec.length);
       });
     }
   }
 
-  void _addTextFieldITR() {
-    // Create a new controller for each TextField
-    TextEditingController _controllerITR = TextEditingController();
-    _controllersITR.add(_controllerITR);
-
-    setState(() {
-      _fieldsITR.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: TextField(
-            controller: _controllerITR,
-            decoration: InputDecoration(
-              labelText: 'Candidate ${_fieldsITR.length + 1}',
-              border: OutlineInputBorder(),
+  // Function to add 3 text fields for Treasurer
+  void _addThreeTextFieldsTre() {
+    for (int i = 0; i < 3; i++) {
+      TextEditingController _controllerTre = TextEditingController();
+      _controllersTre.add(_controllerTre);
+      setState(() {
+        _fieldsTre.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: TextField(
+              controller: _controllerTre,
+              decoration: InputDecoration(
+                labelText: 'Candidate ${_fieldsTre.length + 1}',
+                border: OutlineInputBorder(),
+              ),
             ),
           ),
-        ),
-      );
-    });
-  }
-
-  void _removeTextFieldITR() {
-    if (_fieldsITR.isNotEmpty && _controllersITR.isNotEmpty) {
-      // Remove the last text field and its controller
-      setState(() {
-        _fieldsITR.removeLast();
-        _controllersITR.removeLast();
+        );
       });
     }
   }
 
-  void _addTextFieldISR() {
-    // Create a new controller for each TextField
-    TextEditingController _controllerISR = TextEditingController();
-    _controllersISR.add(_controllerISR);
-
-    setState(() {
-      _fieldsISR.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: TextField(
-            controller: _controllerISR,
-            decoration: InputDecoration(
-              labelText: 'Candidate ${_fieldsISR.length + 1}',
-              border: OutlineInputBorder(),
-            ),
-          ),
-        ),
-      );
-    });
+  // Function to remove the last 3 text fields for Treasurer
+  void _removeThreeTextFieldsTre() {
+    if (_fieldsTre.length >= 3) {
+      setState(() {
+        _fieldsTre.removeRange(_fieldsTre.length - 3, _fieldsTre.length);
+        _controllersTre.removeRange(
+            _controllersTre.length - 3, _controllersTre.length);
+      });
+    }
   }
 
-  void _removeTextFieldISR() {
-    if (_fieldsISR.isNotEmpty && _controllersISR.isNotEmpty) {
-      // Remove the last text field and its controller
+  // Function to add 3 text fields for Auditor
+  void _addThreeTextFieldsAud() {
+    for (int i = 0; i < 3; i++) {
+      TextEditingController _controllerAud = TextEditingController();
+      _controllersAud.add(_controllerAud);
       setState(() {
-        _fieldsISR.removeLast();
-        _controllersISR.removeLast();
+        _fieldsAud.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: TextField(
+              controller: _controllerAud,
+              decoration: InputDecoration(
+                labelText: 'Candidate ${_fieldsAud.length + 1}',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+        );
+      });
+    }
+  }
+
+  // Function to remove the last 3 text fields for Auditor
+  void _removeThreeTextFieldsAud() {
+    if (_fieldsAud.length >= 3) {
+      setState(() {
+        _fieldsAud.removeRange(_fieldsAud.length - 3, _fieldsAud.length);
+        _controllersAud.removeRange(
+            _controllersAud.length - 3, _controllersAud.length);
+      });
+    }
+  }
+
+  // Function to add 3 text fields for Data Representative
+  void _addThreeTextFieldsData() {
+    for (int i = 0; i < 3; i++) {
+      TextEditingController _controllerData = TextEditingController();
+      _controllersData.add(_controllerData);
+      setState(() {
+        _fieldsData.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: TextField(
+              controller: _controllerData,
+              decoration: InputDecoration(
+                labelText: 'Candidate ${_fieldsData.length + 1}',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+        );
+      });
+    }
+  }
+
+  // Function to remove the last 3 text fields for Data Representative
+  void _removeThreeTextFieldsData() {
+    if (_fieldsData.length >= 3) {
+      setState(() {
+        _fieldsData.removeRange(_fieldsData.length - 3, _fieldsData.length);
+        _controllersData.removeRange(
+            _controllersData.length - 3, _controllersData.length);
+      });
+    }
+  }
+
+  // Function to add 3 text fields for IT Representative
+  void _addThreeTextFieldsITR() {
+    for (int i = 0; i < 3; i++) {
+      TextEditingController _controllerITR = TextEditingController();
+      _controllersITR.add(_controllerITR);
+      setState(() {
+        _fieldsITR.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: TextField(
+              controller: _controllerITR,
+              decoration: InputDecoration(
+                labelText: 'Candidate ${_fieldsITR.length + 1}',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+        );
+      });
+    }
+  }
+
+  // Function to remove the last 3 text fields for IT Representative
+  void _removeThreeTextFieldsITR() {
+    if (_fieldsITR.length >= 3) {
+      setState(() {
+        _fieldsITR.removeRange(_fieldsITR.length - 3, _fieldsITR.length);
+        _controllersITR.removeRange(
+            _controllersITR.length - 3, _controllersITR.length);
+      });
+    }
+  }
+
+  // Function to add 3 text fields for ISR
+  void _addThreeTextFieldsISR() {
+    for (int i = 0; i < 3; i++) {
+      TextEditingController _controllerISR = TextEditingController();
+      _controllersISR.add(_controllerISR);
+      setState(() {
+        _fieldsISR.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: TextField(
+              controller: _controllerISR,
+              decoration: InputDecoration(
+                labelText: 'Candidate ${_fieldsISR.length + 1}',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+        );
+      });
+    }
+  }
+
+  // Function to remove the last 3 text fields for ISR
+  void _removeThreeTextFieldsISR() {
+    if (_fieldsISR.length >= 3) {
+      setState(() {
+        _fieldsISR.removeRange(_fieldsISR.length - 3, _fieldsISR.length);
+        _controllersISR.removeRange(
+            _controllersISR.length - 3, _controllersISR.length);
       });
     }
   }
@@ -345,10 +356,10 @@ class _AdminElectionState extends State<AdminElection> {
                     action1Text: 'Add Candidate',
                     action2Text: 'Remove Textfield',
                     onAction1Tap: () {
-                      _addTextFieldPres();
+                      _addThreeTextFieldsPres();
                     },
                     onAction2Tap: () {
-                      _removeTextFieldPres();
+                      _removeThreeTextFieldsPres();
                     },
                     fields: _fieldsPres,
                   ),
@@ -357,10 +368,10 @@ class _AdminElectionState extends State<AdminElection> {
                     action1Text: 'Add Candidate',
                     action2Text: 'Remove Textfield',
                     onAction1Tap: () {
-                      _addTextFieldVice();
+                      _addThreeTextFieldsVice();
                     },
                     onAction2Tap: () {
-                      _removeTextFieldVice();
+                      _removeThreeTextFieldsVice();
                     },
                     fields: _fieldsVice,
                   ),
@@ -369,10 +380,10 @@ class _AdminElectionState extends State<AdminElection> {
                     action1Text: 'Add Candidate',
                     action2Text: 'Remove Textfield',
                     onAction1Tap: () {
-                      _addTextFieldSec();
+                      _addThreeTextFieldsSec();
                     },
                     onAction2Tap: () {
-                      _removeTextFieldSec();
+                      _removeThreeTextFieldsSec();
                     },
                     fields: _fieldsSec,
                   ),
@@ -381,10 +392,10 @@ class _AdminElectionState extends State<AdminElection> {
                     action1Text: 'Add Candidate',
                     action2Text: 'Remove Textfield',
                     onAction1Tap: () {
-                      _addTextFieldTre();
+                      _addThreeTextFieldsTre();
                     },
                     onAction2Tap: () {
-                      _removeTextFieldTre();
+                      _removeThreeTextFieldsTre();
                     },
                     fields: _fieldsTre,
                   ),
@@ -393,10 +404,10 @@ class _AdminElectionState extends State<AdminElection> {
                     action1Text: 'Add Candidate',
                     action2Text: 'Remove Textfield',
                     onAction1Tap: () {
-                      _addTextFieldAud();
+                      _addThreeTextFieldsAud();
                     },
                     onAction2Tap: () {
-                      _removeTextFieldAud();
+                      _removeThreeTextFieldsAud();
                     },
                     fields: _fieldsAud,
                   ),
@@ -405,10 +416,10 @@ class _AdminElectionState extends State<AdminElection> {
                     action1Text: 'Add Candidate',
                     action2Text: 'Remove Textfield',
                     onAction1Tap: () {
-                      _addTextFieldData();
+                      _addThreeTextFieldsData();
                     },
                     onAction2Tap: () {
-                      _removeTextFieldData();
+                      _removeThreeTextFieldsData();
                     },
                     fields: _fieldsData,
                   ),
@@ -417,10 +428,10 @@ class _AdminElectionState extends State<AdminElection> {
                     action1Text: 'Add Candidate',
                     action2Text: 'Remove Textfield',
                     onAction1Tap: () {
-                      _addTextFieldITR();
+                      _addThreeTextFieldsITR();
                     },
                     onAction2Tap: () {
-                      _removeTextFieldITR();
+                      _removeThreeTextFieldsITR();
                     },
                     fields: _fieldsITR,
                   ),
@@ -429,10 +440,10 @@ class _AdminElectionState extends State<AdminElection> {
                     action1Text: 'Add Candidate',
                     action2Text: 'Remove Textfield',
                     onAction1Tap: () {
-                      _addTextFieldISR();
+                      _addThreeTextFieldsISR();
                     },
                     onAction2Tap: () {
-                      _removeTextFieldISR();
+                      _removeThreeTextFieldsISR();
                     },
                     fields: _fieldsISR,
                   ),
@@ -449,167 +460,9 @@ class _AdminElectionState extends State<AdminElection> {
             ),
           ),
           const SizedBox(height: 10),
-          if (sectiontwo)
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Container(
-                child: ElevatedButton(
-                  onPressed: () {
-                    toggleScreen();
-                  },
-                  style: ButtonStyle(
-                    padding: MaterialStateProperty.all<EdgeInsets>(
-                        const EdgeInsets.all(20)),
-                    foregroundColor: MaterialStateProperty.all<Color>(
-                      const Color.fromARGB(255, 0, 0, 0),
-                    ),
-                    backgroundColor: MaterialStateProperty.all<Color>(
-                      Colors.green[300]!,
-                    ),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: const BorderSide(
-                          color: Colors.black,
-                          width: 1,
-                        ),
-                      ),
-                    ),
-                  ),
-                  child: const Text(
-                    'Create an Election',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontFamily: 'Arial',
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          if (sectiontwo)
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Container(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        toggleScreen();
-                      },
-                      style: ButtonStyle(
-                        padding: MaterialStateProperty.all<EdgeInsets>(
-                            const EdgeInsets.all(20)),
-                        foregroundColor: MaterialStateProperty.all<Color>(
-                          const Color.fromARGB(255, 0, 0, 0),
-                        ),
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.green[300]!,
-                        ),
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            side: const BorderSide(
-                              color: Colors.black,
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                      ),
-                      child: const Text(
-                        'Return',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontFamily: 'Arial',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ButtonStyle(
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                                const EdgeInsets.all(20)),
-                            foregroundColor: MaterialStateProperty.all<Color>(
-                              const Color.fromARGB(255, 0, 0, 0),
-                            ),
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.green[300]!,
-                            ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: const BorderSide(
-                                  color: Colors.black,
-                                  width: 1,
-                                ),
-                              ),
-                            ),
-                          ),
-                          child: const Text(
-                            'Add Candidate',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontFamily: 'Arial',
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ButtonStyle(
-                            padding: MaterialStateProperty.all<EdgeInsets>(
-                                const EdgeInsets.all(20)),
-                            foregroundColor: MaterialStateProperty.all<Color>(
-                              const Color.fromARGB(255, 0, 0, 0),
-                            ),
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                              Colors.green[300]!,
-                            ),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: const BorderSide(
-                                  color: Colors.black,
-                                  width: 1,
-                                ),
-                              ),
-                            ),
-                          ),
-                          child: const Text(
-                            'Proceed',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontFamily: 'Arial',
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ),
         ],
       ),
     );
-  }
-
-  void toggleScreen() {
-    setState(() {
-      sectionone = !sectionone;
-      sectiontwo = !sectiontwo;
-    });
   }
 }
 
@@ -651,6 +504,7 @@ class CustomContainerWidget extends StatelessWidget {
                     GestureDetector(
                       onTap: onAction1Tap,
                       child: Container(
+                        padding: EdgeInsets.all(7),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             color: Colors.green[300]),
@@ -664,6 +518,7 @@ class CustomContainerWidget extends StatelessWidget {
                     GestureDetector(
                       onTap: onAction2Tap,
                       child: Container(
+                        padding: EdgeInsets.all(7),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
                             color: Colors.red[300]),
