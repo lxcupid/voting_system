@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:voting_system/core/user_cred.dart';
 import 'package:voting_system/screens/dashboard/studentDashboard/votingsystem_dashboard.dart';
+import 'package:voting_system/screens/votingsystem_signup.dart';
 import 'package:voting_system/widgets/login_dropdown.dart';
 import 'package:voting_system/widgets/login_textformfield.dart';
 
@@ -60,7 +61,7 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
           ),
           Center(
             child: Container(
-              width: 400,
+              width: 500,
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(10.0)),
               ),
@@ -165,6 +166,37 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                         ),
                       ),
                     ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    Align(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Don\'t have an account yet? ',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          GestureDetector(
+                            child: const Text(
+                              'Create account',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const VotingsystemSignup()),
+                              );
+                            },
+                          )
+                        ],
+                      ),
+                    )
                   ],
                 ),
               ),
