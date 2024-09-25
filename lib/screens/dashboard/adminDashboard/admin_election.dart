@@ -640,21 +640,35 @@ class CustomContainerWidget extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(positionText),
+              Text(
+                positionText,
+                style:
+                    TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold),
+              ),
               Container(
                 child: Row(
                   children: [
                     GestureDetector(
                       onTap: onAction1Tap,
                       child: Container(
-                        child: Text(action1Text),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.green[300]),
+                        child: Text(
+                          action1Text,
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                     ),
                     SizedBox(width: 20),
                     GestureDetector(
                       onTap: onAction2Tap,
                       child: Container(
-                        child: Text(action2Text),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.red[300]),
+                        child: Text(action2Text,
+                            style: TextStyle(color: Colors.black)),
                       ),
                     ),
                   ],
