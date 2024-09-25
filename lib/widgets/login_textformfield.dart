@@ -9,6 +9,7 @@ class CustomTextFormField extends StatefulWidget {
   final Widget prefixIcon;
   final Widget? suffixIcon;
   final FormFieldValidator<String>? validator;
+  final bool hasBottomBorder; // New parameter to control bottom border
 
   const CustomTextFormField({
     Key? key,
@@ -20,6 +21,7 @@ class CustomTextFormField extends StatefulWidget {
     required this.prefixIcon,
     this.suffixIcon,
     this.validator,
+    this.hasBottomBorder = false, // Default value is false
   }) : super(key: key);
 
   @override
@@ -38,10 +40,12 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
         hintText: widget.hintText,
         filled: true,
         fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide.none,
-        ),
+        border: widget.hasBottomBorder
+            ? const UnderlineInputBorder() // Shows only the bottom border
+            : OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide.none,
+              ),
         prefixIcon: widget.prefixIcon,
         suffixIcon: widget.suffixIcon,
       ),
