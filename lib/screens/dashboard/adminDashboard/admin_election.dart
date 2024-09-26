@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data'; // For handling file data
 
 class AdminElection extends StatefulWidget {
   const AdminElection({super.key});
@@ -9,7 +11,32 @@ class AdminElection extends StatefulWidget {
 
 class _AdminElectionState extends State<AdminElection> {
   String? selectedItem = 'CCST'; // Default selected item
-  final List<String> items = ['CCST', 'COE', 'COA', 'CTHM', 'CON'];
+  final List<String> items = [
+    'CCST',
+    'COE',
+    'COA',
+    'CAS',
+    'CTE',
+    'CTHM',
+    'CAHS',
+    'CBA',
+    'CHK'
+  ];
+
+  Uint8List? _imageBytes;
+
+  Future<void> _pickImage() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true, // Load image data into memory for web display
+    );
+
+    if (result != null) {
+      setState(() {
+        _imageBytes = result.files.first.bytes;
+      });
+    }
+  }
 
   // Define controllers and fields for each position
   List<TextEditingController> _controllersPres = [];
@@ -28,6 +55,7 @@ class _AdminElectionState extends State<AdminElection> {
   List<Widget> _fieldsITR = [];
   List<TextEditingController> _controllersISR = [];
   List<Widget> _fieldsISR = [];
+  final TextEditingController _title = TextEditingController();
 
   @override
   void initState() {
@@ -48,17 +76,18 @@ class _AdminElectionState extends State<AdminElection> {
 
   // Function to add 3 text fields for President
   void _addThreeTextFieldsPres() {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
       TextEditingController _controllerPres = TextEditingController();
       _controllersPres.add(_controllerPres);
       setState(() {
+        String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
         _fieldsPres.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextField(
               controller: _controllerPres,
               decoration: InputDecoration(
-                labelText: 'Candidate ${_fieldsPres.length + 1}',
+                labelText: labelText,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -70,28 +99,30 @@ class _AdminElectionState extends State<AdminElection> {
 
   // Function to remove the last 3 text fields for President
   void _removeThreeTextFieldsPres() {
-    if (_fieldsPres.length >= 3) {
+    if (_fieldsPres.length >= 2) {
       setState(() {
-        _fieldsPres.removeRange(_fieldsPres.length - 3, _fieldsPres.length);
+        _fieldsPres.removeRange(_fieldsPres.length - 2, _fieldsPres.length);
         _controllersPres.removeRange(
-            _controllersPres.length - 3, _controllersPres.length);
+            _controllersPres.length - 2, _controllersPres.length);
       });
     }
   }
 
   // Function to add 3 text fields for Vice President
   void _addThreeTextFieldsVice() {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
       TextEditingController _controllerVice = TextEditingController();
       _controllersVice.add(_controllerVice);
       setState(() {
+        String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
+
         _fieldsVice.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextField(
               controller: _controllerVice,
               decoration: InputDecoration(
-                labelText: 'Candidate ${_fieldsVice.length + 1}',
+                labelText: labelText,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -103,28 +134,30 @@ class _AdminElectionState extends State<AdminElection> {
 
   // Function to remove the last 3 text fields for Vice President
   void _removeThreeTextFieldsVice() {
-    if (_fieldsVice.length >= 3) {
+    if (_fieldsVice.length >= 2) {
       setState(() {
-        _fieldsVice.removeRange(_fieldsVice.length - 3, _fieldsVice.length);
+        _fieldsVice.removeRange(_fieldsVice.length - 2, _fieldsVice.length);
         _controllersVice.removeRange(
-            _controllersVice.length - 3, _controllersVice.length);
+            _controllersVice.length - 2, _controllersVice.length);
       });
     }
   }
 
   // Function to add 3 text fields for Secretary
   void _addThreeTextFieldsSec() {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
       TextEditingController _controllerSec = TextEditingController();
       _controllersSec.add(_controllerSec);
       setState(() {
+        String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
+
         _fieldsSec.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextField(
               controller: _controllerSec,
               decoration: InputDecoration(
-                labelText: 'Candidate ${_fieldsSec.length + 1}',
+                labelText: labelText,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -136,28 +169,30 @@ class _AdminElectionState extends State<AdminElection> {
 
   // Function to remove the last 3 text fields for Secretary
   void _removeThreeTextFieldsSec() {
-    if (_fieldsSec.length >= 3) {
+    if (_fieldsSec.length >= 2) {
       setState(() {
-        _fieldsSec.removeRange(_fieldsSec.length - 3, _fieldsSec.length);
+        _fieldsSec.removeRange(_fieldsSec.length - 2, _fieldsSec.length);
         _controllersSec.removeRange(
-            _controllersSec.length - 3, _controllersSec.length);
+            _controllersSec.length - 2, _controllersSec.length);
       });
     }
   }
 
   // Function to add 3 text fields for Treasurer
   void _addThreeTextFieldsTre() {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
       TextEditingController _controllerTre = TextEditingController();
       _controllersTre.add(_controllerTre);
       setState(() {
+        String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
+
         _fieldsTre.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextField(
               controller: _controllerTre,
               decoration: InputDecoration(
-                labelText: 'Candidate ${_fieldsTre.length + 1}',
+                labelText: labelText,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -169,28 +204,30 @@ class _AdminElectionState extends State<AdminElection> {
 
   // Function to remove the last 3 text fields for Treasurer
   void _removeThreeTextFieldsTre() {
-    if (_fieldsTre.length >= 3) {
+    if (_fieldsTre.length >= 2) {
       setState(() {
-        _fieldsTre.removeRange(_fieldsTre.length - 3, _fieldsTre.length);
+        _fieldsTre.removeRange(_fieldsTre.length - 2, _fieldsTre.length);
         _controllersTre.removeRange(
-            _controllersTre.length - 3, _controllersTre.length);
+            _controllersTre.length - 2, _controllersTre.length);
       });
     }
   }
 
   // Function to add 3 text fields for Auditor
   void _addThreeTextFieldsAud() {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
       TextEditingController _controllerAud = TextEditingController();
       _controllersAud.add(_controllerAud);
       setState(() {
+        String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
+
         _fieldsAud.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextField(
               controller: _controllerAud,
               decoration: InputDecoration(
-                labelText: 'Candidate ${_fieldsAud.length + 1}',
+                labelText: labelText,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -202,28 +239,30 @@ class _AdminElectionState extends State<AdminElection> {
 
   // Function to remove the last 3 text fields for Auditor
   void _removeThreeTextFieldsAud() {
-    if (_fieldsAud.length >= 3) {
+    if (_fieldsAud.length >= 2) {
       setState(() {
-        _fieldsAud.removeRange(_fieldsAud.length - 3, _fieldsAud.length);
+        _fieldsAud.removeRange(_fieldsAud.length - 2, _fieldsAud.length);
         _controllersAud.removeRange(
-            _controllersAud.length - 3, _controllersAud.length);
+            _controllersAud.length - 2, _controllersAud.length);
       });
     }
   }
 
   // Function to add 3 text fields for Data Representative
   void _addThreeTextFieldsData() {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
       TextEditingController _controllerData = TextEditingController();
       _controllersData.add(_controllerData);
       setState(() {
+        String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
+
         _fieldsData.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextField(
               controller: _controllerData,
               decoration: InputDecoration(
-                labelText: 'Candidate ${_fieldsData.length + 1}',
+                labelText: labelText,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -235,28 +274,30 @@ class _AdminElectionState extends State<AdminElection> {
 
   // Function to remove the last 3 text fields for Data Representative
   void _removeThreeTextFieldsData() {
-    if (_fieldsData.length >= 3) {
+    if (_fieldsData.length >= 2) {
       setState(() {
-        _fieldsData.removeRange(_fieldsData.length - 3, _fieldsData.length);
+        _fieldsData.removeRange(_fieldsData.length - 2, _fieldsData.length);
         _controllersData.removeRange(
-            _controllersData.length - 3, _controllersData.length);
+            _controllersData.length - 2, _controllersData.length);
       });
     }
   }
 
   // Function to add 3 text fields for IT Representative
   void _addThreeTextFieldsITR() {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
       TextEditingController _controllerITR = TextEditingController();
       _controllersITR.add(_controllerITR);
       setState(() {
+        String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
+
         _fieldsITR.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextField(
               controller: _controllerITR,
               decoration: InputDecoration(
-                labelText: 'Candidate ${_fieldsITR.length + 1}',
+                labelText: labelText,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -268,28 +309,30 @@ class _AdminElectionState extends State<AdminElection> {
 
   // Function to remove the last 3 text fields for IT Representative
   void _removeThreeTextFieldsITR() {
-    if (_fieldsITR.length >= 3) {
+    if (_fieldsITR.length >= 2) {
       setState(() {
-        _fieldsITR.removeRange(_fieldsITR.length - 3, _fieldsITR.length);
+        _fieldsITR.removeRange(_fieldsITR.length - 2, _fieldsITR.length);
         _controllersITR.removeRange(
-            _controllersITR.length - 3, _controllersITR.length);
+            _controllersITR.length - 2, _controllersITR.length);
       });
     }
   }
 
   // Function to add 3 text fields for ISR
   void _addThreeTextFieldsISR() {
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
       TextEditingController _controllerISR = TextEditingController();
       _controllersISR.add(_controllerISR);
       setState(() {
+        String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
+
         _fieldsISR.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextField(
               controller: _controllerISR,
               decoration: InputDecoration(
-                labelText: 'Candidate ${_fieldsISR.length + 1}',
+                labelText: labelText,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -301,11 +344,11 @@ class _AdminElectionState extends State<AdminElection> {
 
   // Function to remove the last 3 text fields for ISR
   void _removeThreeTextFieldsISR() {
-    if (_fieldsISR.length >= 3) {
+    if (_fieldsISR.length >= 2) {
       setState(() {
-        _fieldsISR.removeRange(_fieldsISR.length - 3, _fieldsISR.length);
+        _fieldsISR.removeRange(_fieldsISR.length - 2, _fieldsISR.length);
         _controllersISR.removeRange(
-            _controllersISR.length - 3, _controllersISR.length);
+            _controllersISR.length - 2, _controllersISR.length);
       });
     }
   }
@@ -334,22 +377,44 @@ class _AdminElectionState extends State<AdminElection> {
                               fontFamily: 'Arial',
                               fontWeight: FontWeight.bold),
                         ),
-                        DropdownButton<String>(
-                          value: selectedItem,
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedItem = newValue;
-                            });
-                          },
-                          items: items.map((item) {
-                            return DropdownMenuItem(
-                              value: item,
-                              child: Text(item),
-                            );
-                          }).toList(),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 30),
+                          decoration: BoxDecoration(
+                              color: const Color.fromARGB(255, 215, 215, 215),
+                              borderRadius: BorderRadius.circular(15)),
+                          child: DropdownButton<String>(
+                            value: selectedItem,
+                            onChanged: (newValue) {
+                              setState(() {
+                                selectedItem = newValue;
+                              });
+                            },
+                            items: items.map((item) {
+                              return DropdownMenuItem(
+                                value: item,
+                                child: Text(item),
+                              );
+                            }).toList(),
+                          ),
                         ),
                       ],
                     ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 20),
+                    child: TextField(
+                      controller: _title,
+                      decoration: InputDecoration(
+                        labelText: 'Election Title',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
                   ),
                   CustomContainerWidget(
                     positionText: 'President',
@@ -444,8 +509,22 @@ class _AdminElectionState extends State<AdminElection> {
                     },
                     onAction2Tap: () {
                       _removeThreeTextFieldsISR();
+                      print(_imageBytes);
                     },
                     fields: _fieldsISR,
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      _imageBytes != null
+                          ? Image.memory(_imageBytes!)
+                          : Text('No image selected.'),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _pickImage,
+                        child: Text('Pick Image from Web'),
+                      ),
+                    ],
                   ),
                   // TextButton(
                   //     onPressed: () {
