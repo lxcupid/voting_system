@@ -23,21 +23,6 @@ class _AdminElectionState extends State<AdminElection> {
     'CHK'
   ];
 
-  Uint8List? _imageBytes;
-
-  Future<void> _pickImage() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      withData: true, // Load image data into memory for web display
-    );
-
-    if (result != null) {
-      setState(() {
-        _imageBytes = result.files.first.bytes;
-      });
-    }
-  }
-
   // Define controllers and fields for each position
   List<TextEditingController> _controllersPres = [];
   List<Widget> _fieldsPres = [];
@@ -56,6 +41,8 @@ class _AdminElectionState extends State<AdminElection> {
   List<TextEditingController> _controllersISR = [];
   List<Widget> _fieldsISR = [];
   final TextEditingController _title = TextEditingController();
+
+  final List<Uint8List?> _imagesPres = []; // Store images for each candidate
 
   @override
   void initState() {
@@ -79,22 +66,81 @@ class _AdminElectionState extends State<AdminElection> {
     for (int i = 0; i < 2; i++) {
       TextEditingController _controllerPres = TextEditingController();
       _controllersPres.add(_controllerPres);
+
+      // Create a unique index for the new fields
+      int index = _controllersPres.length ~/ 2 - 1; // Determine candidate index
+
       setState(() {
         String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
         _fieldsPres.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: TextField(
-              controller: _controllerPres,
-              decoration: InputDecoration(
-                labelText: labelText,
-                border: OutlineInputBorder(),
-              ),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _controllerPres,
+                  decoration: InputDecoration(
+                    labelText: labelText,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                if (i ==
+                    1) // Show image upload button only after the second text field
+                  Column(
+                    children: [
+                      SizedBox(height: 8), // Spacer
+                      ElevatedButton(
+                        onPressed: () async {
+                          Uint8List? imageData = await _pickImage();
+                          if (imageData != null) {
+                            setState(() {
+                              // Ensure to add image data to the correct index
+                              if (_imagesPres.length > index) {
+                                _imagesPres[index] =
+                                    imageData; // Update existing entry
+                              } else {
+                                _imagesPres.add(imageData); // Add new entry
+                              }
+                            });
+                          }
+                        },
+                        child: Text('Upload Image for Candidate ${index + 1}'),
+                      ),
+                      // Display the uploaded image, if any
+                      if (_imagesPres.length > index &&
+                          _imagesPres[index] != null)
+                        Image.memory(
+                          _imagesPres[index]!,
+                          height: 100,
+                          width: 100,
+                        )
+                      else
+                        Container(
+                          height: 100,
+                          width: 100,
+                          color: Colors.grey[300],
+                        ),
+                    ],
+                  ),
+              ],
             ),
           ),
         );
       });
     }
+  }
+
+  Future<Uint8List?> _pickImage() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+      withData: true,
+    );
+
+    if (result != null && result.files.isNotEmpty) {
+      return result.files.first.bytes; // Return image bytes
+    }
+    return null; // Return null if no image was picked
   }
 
   // Function to remove the last 3 text fields for President
@@ -509,23 +555,22 @@ class _AdminElectionState extends State<AdminElection> {
                     },
                     onAction2Tap: () {
                       _removeThreeTextFieldsISR();
-                      print(_imageBytes);
                     },
                     fields: _fieldsISR,
                   ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      _imageBytes != null
-                          ? Image.memory(_imageBytes!)
-                          : Text('No image selected.'),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _pickImage,
-                        child: Text('Pick Image from Web'),
-                      ),
-                    ],
-                  ),
+                  // Column(
+                  //   mainAxisAlignment: MainAxisAlignment.center,
+                  //   children: <Widget>[
+                  //     _imageBytes != null
+                  //         ? Image.memory(_imageBytes!)
+                  //         : Text('No image selected.'),
+                  //     SizedBox(height: 20),
+                  //     ElevatedButton(
+                  //       onPressed: _pickImage,
+                  //       child: Text('Pick Image from Web'),
+                  //     ),
+                  //   ],
+                  // ),
                   // TextButton(
                   //     onPressed: () {
                   //       for (int i = 0; i < _controllersPres.length; i++) {
