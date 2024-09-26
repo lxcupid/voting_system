@@ -34,7 +34,7 @@ class _VotingsystemSignupState extends State<VotingsystemSignup> {
   Future<void> fetchColleges() async {
     try {
       final response =
-          await http.get(Uri.parse('http://localhost:8005/colleges'));
+          await http.get(Uri.parse('http://localhost:8005/user/colleges'));
 
       if (response.statusCode == 200) {
         final List<dynamic> collegeJson = json.decode(response.body);
