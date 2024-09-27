@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:voting_system/core/providers/selected_candidate_provider.dart';
 
 class CandidatesDialogBox extends StatefulWidget {
   final String presidentName;
