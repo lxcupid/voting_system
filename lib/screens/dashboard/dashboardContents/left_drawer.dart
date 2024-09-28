@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LeftDrawer extends StatefulWidget {
   final bool isCollapsed;
@@ -12,7 +13,7 @@ class LeftDrawer extends StatefulWidget {
     required this.isCollapsed,
     required this.onMenuPressed,
     required this.onScreenSelected,
-    required this.currentScreen, // Accept the current screen
+    required this.currentScreen,
   });
 
   @override
@@ -67,7 +68,10 @@ class _LeftDrawerState extends State<LeftDrawer> {
           text: 'Logout',
           isCollapsed: widget.isCollapsed,
           isSelected: false,
-          onTap: () {
+          onTap: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.remove('student_id'); // Remove the student ID
+            await prefs.remove('college');
             Navigator.pop(context);
             // Perform logout action
           },

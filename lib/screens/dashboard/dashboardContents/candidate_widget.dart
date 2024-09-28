@@ -34,7 +34,7 @@ class CandidateWidget extends StatelessWidget {
               height: imageHeight,
               width: imageWidth,
               child: Image.network(
-                candidate.imageUrl,
+                candidate.image,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return const Center(child: Text('Image failed to load'));

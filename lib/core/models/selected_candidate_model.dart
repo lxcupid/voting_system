@@ -6,6 +6,8 @@ class SelectedCandidateModel {
   final int dataprivacyId;
   final int itrepresentativeId;
   final int isrepresentativeId;
+  final String electionId;
+  final int studentId;
 
   SelectedCandidateModel({
     required this.presidentId,
@@ -15,6 +17,8 @@ class SelectedCandidateModel {
     required this.dataprivacyId,
     required this.itrepresentativeId,
     required this.isrepresentativeId,
+    required this.electionId,
+    required this.studentId,
   });
 
   // Convert to JSON
@@ -27,6 +31,8 @@ class SelectedCandidateModel {
       'dataprivacy_id': dataprivacyId,
       'it_representative_id': itrepresentativeId,
       'is_representative_id': isrepresentativeId,
+      'election_id': itrepresentativeId,
+      'student_id': isrepresentativeId,
     };
   }
 
@@ -40,6 +46,8 @@ class SelectedCandidateModel {
       dataprivacyId: json['dataprivacy_id'],
       itrepresentativeId: json['it_representative_id'],
       isrepresentativeId: json['is_representative_id'],
+      electionId: json['election_id'],
+      studentId: json['student_id'],
     );
   }
 }

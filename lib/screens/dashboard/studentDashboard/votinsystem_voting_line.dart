@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:voting_system/core/models/candidate_model.dart';
+import 'package:http/http.dart' as http;
 import 'package:voting_system/core/providers/selected_candidate_provider.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/candidate_dropdown.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/candidate_widget.dart';
@@ -14,6 +18,7 @@ class VotinsystemVotingLine extends StatefulWidget {
 }
 
 class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
+  bool isLoading = false;
   Candidate? selectedPresident;
   Candidate? selectedVicePresident;
   Candidate? selectedSecretary;
@@ -23,41 +28,104 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
   Candidate? selectedISRepresentative;
   int? selectedId;
 
-  List<Candidate> getCandidatesByPosition(String position) {
-    return candidates
-        .where((candidate) => candidate.position == position)
-        .toList();
+  // Lists to store candidates for each position
+  List<Candidate> allCandidates = [];
+  List<Candidate> presidentCandidates = [];
+  List<Candidate> vpresidentCandidates = [];
+  List<Candidate> secretaryCandidates = [];
+  List<Candidate> treasurerCandidates = [];
+  List<Candidate> dataprivacyCandidates = [];
+  List<Candidate> itrepresentativeCandidates = [];
+  List<Candidate> isrepresentativeCandidates = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCandidates(); // Fetch candidates based on college
   }
 
-  String getCandidateNameById(int? candidateId) {
-    if (candidateId == null || candidateId == -1) {
-      return 'None'; // Return 'None' if the candidateId is empty or invalid
+  Future<void> fetchCandidates() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? college = prefs.getString('college'); // Get the stored college
+
+    if (college != null) {
+      // Fetch candidates based on college
+      final response = await http.get(
+        Uri.parse('http://localhost:8005/user/candidates?college=$college'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> candidatesJson = json.decode(response.body);
+
+        // Clear previous candidates
+        presidentCandidates.clear();
+        vpresidentCandidates.clear();
+        secretaryCandidates.clear();
+        treasurerCandidates.clear();
+        dataprivacyCandidates.clear();
+        itrepresentativeCandidates.clear();
+        isrepresentativeCandidates.clear();
+        allCandidates.clear(); // Clear previous combined list
+
+        // Map candidates to their respective lists
+        for (var candidateData in candidatesJson) {
+          Candidate candidate = Candidate.fromJson(
+              candidateData); // Make sure your Candidate model has a fromJson method
+
+          // Add to combined list
+          allCandidates.add(candidate);
+
+          // Assign to respective lists based on position
+          switch (candidate.position) {
+            case 'President':
+              presidentCandidates.add(candidate);
+              break;
+            case 'Vice President':
+              vpresidentCandidates.add(candidate);
+              break;
+            case 'Secretary':
+              secretaryCandidates.add(candidate);
+              break;
+            case 'Treasurer':
+              treasurerCandidates.add(candidate);
+              break;
+            case 'Data Privacy Officer':
+              dataprivacyCandidates.add(candidate);
+              break;
+            case 'IT Representative':
+              itrepresentativeCandidates.add(candidate);
+              break;
+            case 'IS Representative':
+              isrepresentativeCandidates.add(candidate);
+              break;
+            default:
+          }
+        }
+        setState(
+            () {}); // Call setState to update the UI with the new candidates
+      } else {
+        print('Failed to load candidates Voting line: ${response.statusCode}');
+      }
+    } else {
+      print('No college found in preferences');
     }
+  }
 
-    final candidate = candidates.firstWhere(
-      (candidate) => candidate.candidateId == candidateId,
-      orElse: () => Candidate(
-        candidateId: -1,
-        name: 'None', imageUrl: 'none', position: 'none',
-        motto: 'none', // Handle non-existent candidate by returning 'None'
-      ),
-    );
-
-    return candidate.name;
+  // Method to retrieve candidate name by ID
+  String getCandidateNameById(int? candidateId) {
+    if (candidateId != null) {
+      for (var candidate in allCandidates) {
+        // Search in the combined list
+        if (candidate.candidateId == candidateId) {
+          return candidate.name; // Return the name if found
+        }
+      }
+    }
+    return 'Not Selected'; // Return 'Not Selected' if no candidate found
   }
 
   @override
   Widget build(BuildContext context) {
-    final presidentCandidates = getCandidatesByPosition('President');
-    final vpresidentCandidates = getCandidatesByPosition('Vice President');
-    final secretaryCandidates = getCandidatesByPosition('Secretary');
-    final treasurerCandidates = getCandidatesByPosition('Treasurer');
-    final dataprivacyrCandidates = getCandidatesByPosition('Data Privacy');
-    final itrepresentativeCandidates =
-        getCandidatesByPosition('IT Representative');
-    final isrepresentativeCandidates =
-        getCandidatesByPosition('IS Representative');
-
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Container(
@@ -83,7 +151,7 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                         });
                       },
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     CandidateDropdown(
                       positionLabel: 'Vice President: ',
                       selectedCandidate: selectedVicePresident,
@@ -132,7 +200,7 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                     CandidateDropdown(
                       positionLabel: 'Data Privacy: ',
                       selectedCandidate: selectedDataPrivacy,
-                      candidates: dataprivacyrCandidates,
+                      candidates: dataprivacyCandidates,
                       onChanged: (Candidate? newCandidate) {
                         setState(() {
                           selectedDataPrivacy = newCandidate;
@@ -216,33 +284,77 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                                 dataprivacyName: dataprivacyName,
                                 itrepresentativeName: itrepresentativeName,
                                 isrepresentativeName: isrepresentativeName,
-                                onVotePressed: () {
-                                  Provider.of<SelectedCandidateProvider>(
-                                          context,
-                                          listen: false)
-                                      .resetSelections();
+                                onVotePressed: () async {
+                                  // Retrieve student_id from shared preferences
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  String? studentIdString =
+                                      prefs.getString('student_id');
+                                  int studentId =
+                                      int.tryParse(studentIdString ?? '') ??
+                                          0; // Default to 0 if parsing fails
 
-                                  // Reset selected candidates in the state
-                                  setState(() {
-                                    selectedPresident = null;
-                                    selectedVicePresident = null;
-                                    selectedSecretary = null;
-                                    selectedTreasurer = null;
-                                    selectedDataPrivacy = null;
-                                    selectedITRepresentative = null;
-                                    selectedISRepresentative = null;
-                                    selectedId = null; // Reset selected ID
-                                  });
+                                  // Define your selected candidates map
+                                  final selectedCandidates = {
+                                    'president_id':
+                                        selectedPresident?.candidateId,
+                                    'vice_president_id':
+                                        selectedVicePresident?.candidateId,
+                                    'secretary_id':
+                                        selectedSecretary?.candidateId,
+                                    'treasurer_id':
+                                        selectedTreasurer?.candidateId,
+                                    'data_privacy_id':
+                                        selectedDataPrivacy?.candidateId,
+                                    'itrepresentative_id':
+                                        selectedITRepresentative?.candidateId,
+                                    'isrepresentative_id':
+                                        selectedISRepresentative?.candidateId,
+                                    'election_id':
+                                        selectedPresident?.electionId ?? 0,
+                                    'student_id': studentId,
+                                  };
 
-                                  // Show success message
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Vote successfully added!'),
-                                      duration: Duration(seconds: 4),
-                                    ),
-                                  );
+                                  try {
+                                    final response = await http.post(
+                                      Uri.parse(
+                                          'http://localhost:8005/user/votes'),
+                                      headers: {
+                                        'Content-Type': 'application/json',
+                                      },
+                                      body: json.encode(selectedCandidates),
+                                    );
 
-                                  Navigator.of(context).pop();
+                                    print(
+                                        'Request body: ${selectedCandidates}');
+
+                                    if (response.statusCode == 201) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content:
+                                              Text('Vote successfully added!'),
+                                          duration: Duration(seconds: 4),
+                                        ),
+                                      );
+                                      Navigator.of(context).pop();
+                                    } else if (response.statusCode == 409) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content:
+                                              Text('Yoou havea already voted!'),
+                                          duration: Duration(seconds: 1),
+                                        ),
+                                      );
+
+                                      Navigator.of(context).pop();
+                                    } else {
+                                      print('Error: ${response.statusCode}');
+                                    }
+                                  } catch (error) {
+                                    print('Error occurred: $error');
+                                  }
                                 },
                                 oncancelPressed: () {
                                   Navigator.of(context).pop();
@@ -272,7 +384,7 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                       imageHeight: 300,
                       imageWidth: 250,
                       alignment: MainAxisAlignment.center,
-                      candidate: candidates
+                      candidate: allCandidates
                           .firstWhere((c) => c.candidateId == selectedId),
                       showMotto: true,
                     )

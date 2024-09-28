@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // Import Shared Preferences
 import 'package:voting_system/core/models/candidate_model.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/candidate_widget.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class VotingsystemHome extends StatefulWidget {
   const VotingsystemHome({super.key});
@@ -13,16 +16,34 @@ class _VotingsystemHomeState extends State<VotingsystemHome> {
   List<Candidate> filteredCandidates = [];
   String searchQuery = '';
 
-  @override
-  void initState() {
-    super.initState();
-    filteredCandidates = candidates; // Initialize with all candidates
+  Future<List<Candidate>> fetchCandidates() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? college = prefs.getString('college'); // Get the stored college
+
+    if (college != null) {
+      // Fetch candidates based on college
+      final response = await http.get(
+        Uri.parse(
+            'http://localhost:8005/user/candidates?college=$college'), // Use the college ID
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> candidatesJson = json.decode(response.body);
+        return candidatesJson
+            .map((json) => Candidate.fromJson(json))
+            .toList(); // Convert JSON to Candidate objects
+      } else {
+        throw Exception('Failed to load candidates: ${response.statusCode}');
+      }
+    } else {
+      throw Exception('No college found in preferences');
+    }
   }
 
   void _filterCandidates(String query) {
     setState(() {
       searchQuery = query;
-      filteredCandidates = candidates
+      filteredCandidates = filteredCandidates
           .where((candidate) =>
               candidate.name.toLowerCase().contains(query.toLowerCase()))
           .toList();
@@ -43,27 +64,46 @@ class _VotingsystemHomeState extends State<VotingsystemHome> {
                 hintText: 'Search candidates...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.green),
+                  borderSide: const BorderSide(color: Colors.green),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: Colors.green),
+                  borderSide: const BorderSide(color: Colors.green),
                 ),
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
               ),
-              onChanged: _filterCandidates,
+              onChanged: _filterCandidates, // Call the filtering method
             ),
           ),
-          // Candidate Grid
+          // FutureBuilder to fetch candidates
           Expanded(
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 350, mainAxisExtent: 450),
-              itemCount: filteredCandidates.length,
-              itemBuilder: (context, index) {
-                return CandidateWidget(
-                  candidate: filteredCandidates[index], // Use CandidateWidget
-                );
+            child: FutureBuilder<List<Candidate>>(
+              future: fetchCandidates(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No candidates found.'));
+                } else {
+                  filteredCandidates =
+                      snapshot.data!; // Update the filtered candidates
+                  return GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 350,
+                      mainAxisExtent: 450,
+                    ),
+                    itemCount: filteredCandidates.length,
+                    itemBuilder: (context, index) {
+                      return CandidateWidget(
+                        showMotto: true,
+                        candidate: filteredCandidates[index],
+                      );
+                    },
+                  );
+                }
               },
             ),
           ),
