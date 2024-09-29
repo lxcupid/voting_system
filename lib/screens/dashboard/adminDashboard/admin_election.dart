@@ -1,7 +1,61 @@
+import 'dart:convert';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart'; // For kIsWeb
+import 'package:http/http.dart' as http;
+
+void fetchCollegeNames(List<String> collegeNames, Function updateState) async {
+  final String baseUrl = 'http://localhost:8005/user/colleges';
+
+  final response = await http.get(Uri.parse(baseUrl));
+
+  if (response.statusCode == 200) {
+    List<dynamic> jsonList = json.decode(response.body);
+    collegeNames.clear(); // Clear existing data
+
+    // Extract and add only college names to the list
+    for (var item in jsonList) {
+      collegeNames.add(item['college_name']);
+    }
+
+    // Call updateState to rebuild the widget with new data
+    updateState();
+  } else {
+    print('Failed to load colleges. Status code: ${response.statusCode}');
+  }
+}
+
+class Candidate {
+  String fullname;
+  String motto;
+  String college;
+  String position;
+  String electionId;
+  Uint8List?
+      image; // Use Uint8List for web; adjust as needed for other platforms
+
+  Candidate({
+    required this.fullname,
+    required this.motto,
+    required this.college,
+    required this.position,
+    required this.electionId,
+    this.image,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "fullname": fullname,
+      "motto": motto,
+      "college": college,
+      "position": position,
+      "election_id": electionId,
+      "image": image,
+    };
+  }
+}
 
 class AdminElection extends StatefulWidget {
   const AdminElection({super.key});
@@ -11,21 +65,12 @@ class AdminElection extends StatefulWidget {
 }
 
 class _AdminElectionState extends State<AdminElection> {
-  String? selectedItem = 'CCST'; // Default selected item
-  final List<String> items = [
-    'CCST',
-    'COE',
-    'COA',
-    'CAS',
-    'CTE',
-    'CTHM',
-    'CAHS',
-    'CBA',
-    'CHK'
-  ];
+  List<Candidate> candidates = [];
+
+  String? selectedCollege =
+      'College of Computer Studies and Technology'; // Variable to store the selected college
 
   // Define controllers and fields for each position
-  List<TextEditingController> _controllersPres = [];
   List<Widget> _fieldsPres = [];
   List<TextEditingController> _controllersVice = [];
   List<Widget> _fieldsVice = [];
@@ -41,7 +86,10 @@ class _AdminElectionState extends State<AdminElection> {
   List<Widget> _fieldsITR = [];
   List<TextEditingController> _controllersISR = [];
   List<Widget> _fieldsISR = [];
+
   final TextEditingController _title = TextEditingController();
+
+  List<String> collegeNames = []; // List to store college names
 
   @override
   void initState() {
@@ -58,119 +106,190 @@ class _AdminElectionState extends State<AdminElection> {
     _addThreeTextFieldsData();
     _addThreeTextFieldsITR();
     _addThreeTextFieldsISR();
+    fetchCollegeNames(collegeNames, () {
+      setState(() {
+        // Loading state
+      }); // Update the UI when data is fetched
+    });
   }
 
-  void _addThreeTextFieldsPres() {
-    for (int i = 0; i < 2; i++) {
-      TextEditingController _controllerPres = TextEditingController();
-      _controllersPres.add(_controllerPres);
+  List<Map<String, dynamic>> _candidatesData =
+      []; // List to store candidate data (controllers and images)
 
-      // Separate variables to store image data for web and desktop
-      File? selectedImage;
-      Uint8List? selectedWebImage; // For web
+  Future<void> submitCandidates() async {
+    final String apiUrl = 'http://localhost:8005/user/candidates';
 
-      // Create a variable to track the index of the button/image pair
-      int imageIndex = _fieldsPres.length;
+    for (var candidate in candidates) {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(candidate.toJson()),
+      );
 
-      setState(() {
-        String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
-
-        _fieldsPres.add(
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: _controllerPres,
-                  decoration: InputDecoration(
-                    labelText: labelText,
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                if (i % 2 != 0)
-                  StatefulBuilder(builder: (context, setStateImage) {
-                    return Column(
-                      children: [
-                        SizedBox(height: 10),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.all(7),
-                            backgroundColor: Colors.green[300],
-                            foregroundColor: Colors.black, // Button color
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(10), // Rounded corners
-                            ),
-                          ),
-                          onPressed: () async {
-                            if (kIsWeb) {
-                              // Web: Select and handle image as Uint8List
-                              FilePickerResult? result =
-                                  await FilePicker.platform.pickFiles(
-                                type: FileType.image,
-                                allowMultiple: false,
-                              );
-
-                              if (result != null) {
-                                selectedWebImage = result.files.first.bytes;
-
-                                // Update the image without replacing the button
-                                setStateImage(() {});
-                              }
-                            } else {
-                              // Desktop (Windows): Select and handle image as File
-                              FilePickerResult? result =
-                                  await FilePicker.platform.pickFiles(
-                                type: FileType.image,
-                                allowMultiple: false,
-                              );
-
-                              if (result != null) {
-                                selectedImage = File(result.files.single.path!);
-
-                                // Update the image without replacing the button
-                                setStateImage(() {});
-                              }
-                            }
-                          },
-                          child: Text('Pick Candidate Image'),
-                        ),
-                        SizedBox(height: 10),
-                        // Display the selected image or a placeholder
-                        if (kIsWeb && selectedWebImage != null)
-                          Image.memory(
-                            selectedWebImage!,
-                            height: 200,
-                            width: 200,
-                            fit: BoxFit.cover,
-                          )
-                        else if (!kIsWeb && selectedImage != null)
-                          Image.file(
-                            selectedImage!,
-                            height: 200,
-                            width: 200,
-                            fit: BoxFit.cover,
-                          )
-                        else
-                          Text('No image selected'),
-                      ],
-                    );
-                  }),
-              ],
-            ),
-          ),
-        );
-      });
+      if (response.statusCode == 200) {
+        print("Candidate submitted: ${response.body}");
+      } else {
+        print("Failed to submit candidate: ${response.statusCode}");
+      }
     }
   }
 
+  void _addThreeTextFieldsPres() {
+    // Use a single set of controllers and a stateful widget to store data
+    TextEditingController _fullnameController = TextEditingController();
+    TextEditingController _mottoController = TextEditingController();
+
+    // Store selected image data
+    File? selectedImage;
+    Uint8List? selectedWebImage; // For web
+
+    // Function to check and add candidate automatically
+    void _checkAndAddCandidate() {
+      if (_fullnameController.text.isNotEmpty &&
+          _mottoController.text.isNotEmpty) {
+        // Add the candidate to the list
+        setState(() {
+          candidates.add(
+            Candidate(
+              fullname: _fullnameController.text,
+              motto: _mottoController.text,
+              college: 'CCST',
+              position: "President", // Use appropriate position
+              electionId: '1029',
+              image: selectedWebImage ??
+                  (selectedImage != null
+                      ? selectedImage!.readAsBytesSync()
+                      : null), // Adjust based on platform
+            ),
+          );
+        });
+      } else {
+        // Optionally show a message to fill in the required fields
+        print('Please fill in the fullname and motto fields');
+      }
+    }
+
+    setState(() {
+      _fieldsPres.add(
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: _fullnameController,
+                decoration: InputDecoration(
+                  labelText: 'Candidate Fullname',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (text) {
+                  // Optionally trigger check when typing
+                },
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              TextField(
+                controller: _mottoController,
+                decoration: InputDecoration(
+                  labelText: 'Motto',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (text) {
+                  // Optionally trigger check when typing
+                },
+              ),
+              StatefulBuilder(builder: (context, setStateImage) {
+                return Column(
+                  children: [
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.all(7),
+                        backgroundColor: Colors.green[300],
+                        foregroundColor: Colors.black, // Button color
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(10), // Rounded corners
+                        ),
+                      ),
+                      onPressed: () async {
+                        if (kIsWeb) {
+                          // Web: Select and handle image as Uint8List
+                          FilePickerResult? result =
+                              await FilePicker.platform.pickFiles(
+                            type: FileType.image,
+                            allowMultiple: false,
+                          );
+
+                          if (result != null) {
+                            selectedWebImage = result.files.first.bytes;
+
+                            // Update the image without replacing the button
+                            setStateImage(() {});
+
+                            // Automatically check and add the candidate
+                            _checkAndAddCandidate();
+                          }
+                        } else {
+                          // Desktop (Windows): Select and handle image as File
+                          FilePickerResult? result =
+                              await FilePicker.platform.pickFiles(
+                            type: FileType.image,
+                            allowMultiple: false,
+                          );
+
+                          if (result != null) {
+                            selectedImage = File(result.files.single.path!);
+
+                            // Update the image without replacing the button
+                            setStateImage(() {});
+
+                            // Automatically check and add the candidate
+                            _checkAndAddCandidate();
+                          }
+                        }
+                      },
+                      child: Text('Pick Candidate Image'),
+                    ),
+                    SizedBox(height: 10),
+                    // Display the selected image or a placeholder
+                    if (kIsWeb && selectedWebImage != null)
+                      Image.memory(
+                        selectedWebImage!,
+                        height: 200,
+                        width: 200,
+                        fit: BoxFit.cover,
+                      )
+                    else if (!kIsWeb && selectedImage != null)
+                      Image.file(
+                        selectedImage!,
+                        height: 200,
+                        width: 200,
+                        fit: BoxFit.cover,
+                      )
+                    else
+                      Text('No image selected'),
+                  ],
+                );
+              }),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+
   void _removeThreeTextFieldsPres() {
-    if (_fieldsPres.length >= 2) {
+    if (_fieldsPres.length >= 3) {
       setState(() {
-        _fieldsPres.removeRange(_fieldsPres.length - 2, _fieldsPres.length);
-        _controllersPres.removeRange(
-            _controllersPres.length - 2, _controllersPres.length);
+        // Remove the last entry in the _fieldsPres list (fullname, motto, and button)
+        _fieldsPres.removeLast();
+        _fieldsPres.removeLast();
+        _fieldsPres.removeLast();
+
+        // Remove the last corresponding controllers and image data from _candidatesData
+        _candidatesData.removeLast();
       });
     }
   }
@@ -991,185 +1110,186 @@ class _AdminElectionState extends State<AdminElection> {
     return Container(
       child: Column(
         children: [
-          // sectionone
-          //     ?
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Create an Election:',
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontFamily: 'Arial',
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 30),
-                          decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 215, 215, 215),
-                              borderRadius: BorderRadius.circular(15)),
-                          child: DropdownButton<String>(
-                            value: selectedItem,
-                            onChanged: (newValue) {
-                              setState(() {
-                                selectedItem = newValue;
-                              });
-                            },
-                            items: items.map((item) {
-                              return DropdownMenuItem(
-                                value: item,
-                                child: Text(item),
-                              );
-                            }).toList(),
+          // Display loading indicator if collegeNames is empty
+          if (collegeNames.isEmpty)
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else // If collegeNames is not empty, display the rest of the UI
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Create an Election:',
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontFamily: 'Arial',
+                                fontWeight: FontWeight.bold),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: 20),
-                    child: TextField(
-                      controller: _title,
-                      decoration: InputDecoration(
-                        labelText: 'Election Title',
-                        border: OutlineInputBorder(),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 30),
+                            decoration: BoxDecoration(
+                                color: const Color.fromARGB(255, 215, 215, 215),
+                                borderRadius: BorderRadius.circular(15)),
+                            child: DropdownButton<String>(
+                              value: selectedCollege,
+                              onChanged: (newValue) {
+                                setState(() {
+                                  selectedCollege = newValue;
+                                });
+                              },
+                              items: collegeNames.map<DropdownMenuItem<String>>(
+                                  (String collegeName) {
+                                return DropdownMenuItem(
+                                  value: collegeName,
+                                  child: Text(collegeName),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  CustomContainerWidget(
-                    positionText: 'President',
-                    action1Text: 'Add Candidate',
-                    action2Text: 'Remove Textfield',
-                    onAction1Tap: () {
-                      _addThreeTextFieldsPres();
-                    },
-                    onAction2Tap: () {
-                      _removeThreeTextFieldsPres();
-                    },
-                    fields: _fieldsPres,
-                  ),
-                  CustomContainerWidget(
-                    positionText: 'Vice President',
-                    action1Text: 'Add Candidate',
-                    action2Text: 'Remove Textfield',
-                    onAction1Tap: () {
-                      _addThreeTextFieldsVice();
-                    },
-                    onAction2Tap: () {
-                      _removeThreeTextFieldsVice();
-                    },
-                    fields: _fieldsVice,
-                  ),
-                  CustomContainerWidget(
-                    positionText: 'Secretary',
-                    action1Text: 'Add Candidate',
-                    action2Text: 'Remove Textfield',
-                    onAction1Tap: () {
-                      _addThreeTextFieldsSec();
-                    },
-                    onAction2Tap: () {
-                      _removeThreeTextFieldsSec();
-                    },
-                    fields: _fieldsSec,
-                  ),
-                  CustomContainerWidget(
-                    positionText: 'Treasurer',
-                    action1Text: 'Add Candidate',
-                    action2Text: 'Remove Textfield',
-                    onAction1Tap: () {
-                      _addThreeTextFieldsTre();
-                    },
-                    onAction2Tap: () {
-                      _removeThreeTextFieldsTre();
-                    },
-                    fields: _fieldsTre,
-                  ),
-                  CustomContainerWidget(
-                    positionText: 'Auditor',
-                    action1Text: 'Add Candidate',
-                    action2Text: 'Remove Textfield',
-                    onAction1Tap: () {
-                      _addThreeTextFieldsAud();
-                    },
-                    onAction2Tap: () {
-                      _removeThreeTextFieldsAud();
-                    },
-                    fields: _fieldsAud,
-                  ),
-                  CustomContainerWidget(
-                    positionText: 'Data Privacy',
-                    action1Text: 'Add Candidate',
-                    action2Text: 'Remove Textfield',
-                    onAction1Tap: () {
-                      _addThreeTextFieldsData();
-                    },
-                    onAction2Tap: () {
-                      _removeThreeTextFieldsData();
-                    },
-                    fields: _fieldsData,
-                  ),
-                  CustomContainerWidget(
-                    positionText: 'IT Representative',
-                    action1Text: 'Add Candidate',
-                    action2Text: 'Remove Textfield',
-                    onAction1Tap: () {
-                      _addThreeTextFieldsITR();
-                    },
-                    onAction2Tap: () {
-                      _removeThreeTextFieldsITR();
-                    },
-                    fields: _fieldsITR,
-                  ),
-                  CustomContainerWidget(
-                    positionText: 'IS Representative',
-                    action1Text: 'Add Candidate',
-                    action2Text: 'Remove Textfield',
-                    onAction1Tap: () {
-                      _addThreeTextFieldsISR();
-                    },
-                    onAction2Tap: () {
-                      _removeThreeTextFieldsISR();
-                    },
-                    fields: _fieldsISR,
-                  ),
-                  // Column(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: <Widget>[
-                  //     _imageBytes != null
-                  //         ? Image.memory(_imageBytes!)
-                  //         : Text('No image selected.'),
-                  //     SizedBox(height: 20),
-                  //     ElevatedButton(
-                  //       onPressed: _pickImage,
-                  //       child: Text('Pick Image from Web'),
-                  //     ),
-                  //   ],
-                  // ),
-                  // TextButton(
-                  //     onPressed: () {
-                  //       for (int i = 0; i < _controllersPres.length; i++) {
-                  //         print(
-                  //             'Candidate ${i + 1}: ${_controllersPres[i].text}');
-                  //       }
-                  //     },
-                  //     child: Text('data'))
-                ],
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      child: TextField(
+                        controller: _title,
+                        decoration: InputDecoration(
+                          labelText: 'Election Title',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    CustomContainerWidget(
+                      positionText: 'President',
+                      action1Text: 'Add Candidate',
+                      action2Text: 'Remove Textfield',
+                      onAction1Tap: () {
+                        _addThreeTextFieldsPres();
+                      },
+                      onAction2Tap: () {
+                        _removeThreeTextFieldsPres();
+                      },
+                      fields: _fieldsPres,
+                    ),
+                    CustomContainerWidget(
+                      positionText: 'Vice President',
+                      action1Text: 'Add Candidate',
+                      action2Text: 'Remove Textfield',
+                      onAction1Tap: () {
+                        _addThreeTextFieldsVice();
+                      },
+                      onAction2Tap: () {
+                        _removeThreeTextFieldsVice();
+                      },
+                      fields: _fieldsVice,
+                    ),
+                    CustomContainerWidget(
+                      positionText: 'Secretary',
+                      action1Text: 'Add Candidate',
+                      action2Text: 'Remove Textfield',
+                      onAction1Tap: () {
+                        _addThreeTextFieldsSec();
+                      },
+                      onAction2Tap: () {
+                        _removeThreeTextFieldsSec();
+                      },
+                      fields: _fieldsSec,
+                    ),
+                    CustomContainerWidget(
+                      positionText: 'Treasurer',
+                      action1Text: 'Add Candidate',
+                      action2Text: 'Remove Textfield',
+                      onAction1Tap: () {
+                        _addThreeTextFieldsTre();
+                      },
+                      onAction2Tap: () {
+                        _removeThreeTextFieldsTre();
+                      },
+                      fields: _fieldsTre,
+                    ),
+                    CustomContainerWidget(
+                      positionText: 'Auditor',
+                      action1Text: 'Add Candidate',
+                      action2Text: 'Remove Textfield',
+                      onAction1Tap: () {
+                        _addThreeTextFieldsAud();
+                      },
+                      onAction2Tap: () {
+                        _removeThreeTextFieldsAud();
+                      },
+                      fields: _fieldsAud,
+                    ),
+                    CustomContainerWidget(
+                      positionText: 'Data Privacy',
+                      action1Text: 'Add Candidate',
+                      action2Text: 'Remove Textfield',
+                      onAction1Tap: () {
+                        _addThreeTextFieldsData();
+                      },
+                      onAction2Tap: () {
+                        _removeThreeTextFieldsData();
+                      },
+                      fields: _fieldsData,
+                    ),
+                    CustomContainerWidget(
+                      positionText: 'IT Representative',
+                      action1Text: 'Add Candidate',
+                      action2Text: 'Remove Textfield',
+                      onAction1Tap: () {
+                        _addThreeTextFieldsITR();
+                      },
+                      onAction2Tap: () {
+                        _removeThreeTextFieldsITR();
+                      },
+                      fields: _fieldsITR,
+                    ),
+                    CustomContainerWidget(
+                      positionText: 'IS Representative',
+                      action1Text: 'Add Candidate',
+                      action2Text: 'Remove Textfield',
+                      onAction1Tap: () {
+                        _addThreeTextFieldsISR();
+                      },
+                      onAction2Tap: () {
+                        _removeThreeTextFieldsISR();
+                      },
+                      fields: _fieldsISR,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        // for (var controller in _controllersPres) {
+                        //   print(controller.text);
+                        // }
+                        submitCandidates();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(7),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.green[300]),
+                        child: Text('Create An Election',
+                            style: TextStyle(color: Colors.black)),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
           const SizedBox(height: 10),
         ],
       ),
