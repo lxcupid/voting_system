@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'dart:typed_data'; // For handling file data
+import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:flutter/foundation.dart'; // For kIsWeb
 
 class AdminElection extends StatefulWidget {
   const AdminElection({super.key});
@@ -42,8 +43,6 @@ class _AdminElectionState extends State<AdminElection> {
   List<Widget> _fieldsISR = [];
   final TextEditingController _title = TextEditingController();
 
-  final List<Uint8List?> _imagesPres = []; // Store images for each candidate
-
   @override
   void initState() {
     super.initState();
@@ -61,21 +60,26 @@ class _AdminElectionState extends State<AdminElection> {
     _addThreeTextFieldsISR();
   }
 
-  // Function to add 3 text fields for President
   void _addThreeTextFieldsPres() {
     for (int i = 0; i < 2; i++) {
       TextEditingController _controllerPres = TextEditingController();
       _controllersPres.add(_controllerPres);
 
-      // Create a unique index for the new fields
-      int index = _controllersPres.length ~/ 2 - 1; // Determine candidate index
+      // Separate variables to store image data for web and desktop
+      File? selectedImage;
+      Uint8List? selectedWebImage; // For web
+
+      // Create a variable to track the index of the button/image pair
+      int imageIndex = _fieldsPres.length;
 
       setState(() {
         String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
+
         _fieldsPres.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 TextField(
                   controller: _controllerPres,
@@ -84,44 +88,75 @@ class _AdminElectionState extends State<AdminElection> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-                if (i ==
-                    1) // Show image upload button only after the second text field
-                  Column(
-                    children: [
-                      SizedBox(height: 8), // Spacer
-                      ElevatedButton(
-                        onPressed: () async {
-                          Uint8List? imageData = await _pickImage();
-                          if (imageData != null) {
-                            setState(() {
-                              // Ensure to add image data to the correct index
-                              if (_imagesPres.length > index) {
-                                _imagesPres[index] =
-                                    imageData; // Update existing entry
-                              } else {
-                                _imagesPres.add(imageData); // Add new entry
+                if (i % 2 != 0)
+                  StatefulBuilder(builder: (context, setStateImage) {
+                    return Column(
+                      children: [
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(7),
+                            backgroundColor: Colors.green[300],
+                            foregroundColor: Colors.black, // Button color
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(10), // Rounded corners
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (kIsWeb) {
+                              // Web: Select and handle image as Uint8List
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedWebImage = result.files.first.bytes;
+
+                                // Update the image without replacing the button
+                                setStateImage(() {});
                               }
-                            });
-                          }
-                        },
-                        child: Text('Upload Image for Candidate ${index + 1}'),
-                      ),
-                      // Display the uploaded image, if any
-                      if (_imagesPres.length > index &&
-                          _imagesPres[index] != null)
-                        Image.memory(
-                          _imagesPres[index]!,
-                          height: 100,
-                          width: 100,
-                        )
-                      else
-                        Container(
-                          height: 100,
-                          width: 100,
-                          color: Colors.grey[300],
+                            } else {
+                              // Desktop (Windows): Select and handle image as File
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedImage = File(result.files.single.path!);
+
+                                // Update the image without replacing the button
+                                setStateImage(() {});
+                              }
+                            }
+                          },
+                          child: Text('Pick Candidate Image'),
                         ),
-                    ],
-                  ),
+                        SizedBox(height: 10),
+                        // Display the selected image or a placeholder
+                        if (kIsWeb && selectedWebImage != null)
+                          Image.memory(
+                            selectedWebImage!,
+                            height: 200,
+                            width: 200,
+                            fit: BoxFit.cover,
+                          )
+                        else if (!kIsWeb && selectedImage != null)
+                          Image.file(
+                            selectedImage!,
+                            height: 200,
+                            width: 200,
+                            fit: BoxFit.cover,
+                          )
+                        else
+                          Text('No image selected'),
+                      ],
+                    );
+                  }),
               ],
             ),
           ),
@@ -130,20 +165,6 @@ class _AdminElectionState extends State<AdminElection> {
     }
   }
 
-  Future<Uint8List?> _pickImage() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowMultiple: false,
-      withData: true,
-    );
-
-    if (result != null && result.files.isNotEmpty) {
-      return result.files.first.bytes; // Return image bytes
-    }
-    return null; // Return null if no image was picked
-  }
-
-  // Function to remove the last 3 text fields for President
   void _removeThreeTextFieldsPres() {
     if (_fieldsPres.length >= 2) {
       setState(() {
@@ -154,23 +175,103 @@ class _AdminElectionState extends State<AdminElection> {
     }
   }
 
-  // Function to add 3 text fields for Vice President
+  // Function to add 2 text fields and an image picker button for each Vice candidate
   void _addThreeTextFieldsVice() {
     for (int i = 0; i < 2; i++) {
       TextEditingController _controllerVice = TextEditingController();
       _controllersVice.add(_controllerVice);
+
+      // Separate variables to store image data for web and desktop
+      File? selectedViceImage;
+      Uint8List? selectedViceWebImage; // For web
+
+      // Create a variable to track the index of the button/image pair
+      int imageIndex = _fieldsVice.length;
+
       setState(() {
         String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
 
         _fieldsVice.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: TextField(
-              controller: _controllerVice,
-              decoration: InputDecoration(
-                labelText: labelText,
-                border: OutlineInputBorder(),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _controllerVice,
+                  decoration: InputDecoration(
+                    labelText: labelText,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                if (i % 2 != 0) // Button and image picker only for 'Vice Motto'
+                  StatefulBuilder(builder: (context, setStateImage) {
+                    return Column(
+                      children: [
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.all(7),
+                            backgroundColor: Colors.green[300],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (kIsWeb) {
+                              // Web: Select and handle image as Uint8List
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedViceWebImage = result.files.first.bytes;
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            } else {
+                              // Desktop (Windows): Select and handle image as File
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedViceImage =
+                                    File(result.files.single.path!);
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            }
+                          },
+                          child: Text('Pick Candidate Image'),
+                        ),
+                        SizedBox(height: 10),
+                        // Display the selected image or a placeholder
+                        if (kIsWeb && selectedViceWebImage != null)
+                          Image.memory(
+                            selectedViceWebImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else if (!kIsWeb && selectedViceImage != null)
+                          Image.file(
+                            selectedViceImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else
+                          Text('No image selected'),
+                      ],
+                    );
+                  }),
+              ],
             ),
           ),
         );
@@ -189,23 +290,104 @@ class _AdminElectionState extends State<AdminElection> {
     }
   }
 
-  // Function to add 3 text fields for Secretary
+// Function to add 2 text fields and an image picker button for each Secretary candidate
   void _addThreeTextFieldsSec() {
     for (int i = 0; i < 2; i++) {
       TextEditingController _controllerSec = TextEditingController();
       _controllersSec.add(_controllerSec);
+
+      // Separate variables to store image data for web and desktop
+      File? selectedSecImage;
+      Uint8List? selectedSecWebImage; // For web
+
+      // Create a variable to track the index of the button/image pair
+      int imageIndex = _fieldsSec.length;
+
       setState(() {
         String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
 
         _fieldsSec.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: TextField(
-              controller: _controllerSec,
-              decoration: InputDecoration(
-                labelText: labelText,
-                border: OutlineInputBorder(),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _controllerSec,
+                  decoration: InputDecoration(
+                    labelText: labelText,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                if (i % 2 !=
+                    0) // Button and image picker only for 'Secretary Motto'
+                  StatefulBuilder(builder: (context, setStateImage) {
+                    return Column(
+                      children: [
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(7),
+                            backgroundColor: Colors.green[300],
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (kIsWeb) {
+                              // Web: Select and handle image as Uint8List
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedSecWebImage = result.files.first.bytes;
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            } else {
+                              // Desktop (Windows): Select and handle image as File
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedSecImage =
+                                    File(result.files.single.path!);
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            }
+                          },
+                          child: Text('Pick Candidate Image'),
+                        ),
+                        SizedBox(height: 10),
+                        // Display the selected image or a placeholder
+                        if (kIsWeb && selectedSecWebImage != null)
+                          Image.memory(
+                            selectedSecWebImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else if (!kIsWeb && selectedSecImage != null)
+                          Image.file(
+                            selectedSecImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else
+                          Text('No image selected'),
+                      ],
+                    );
+                  }),
+              ],
             ),
           ),
         );
@@ -224,23 +406,104 @@ class _AdminElectionState extends State<AdminElection> {
     }
   }
 
-  // Function to add 3 text fields for Treasurer
+  // Function to add 2 text fields and an image picker button for each Treretary candidate
   void _addThreeTextFieldsTre() {
     for (int i = 0; i < 2; i++) {
       TextEditingController _controllerTre = TextEditingController();
       _controllersTre.add(_controllerTre);
+
+      // Separate variables to store image data for web and desktop
+      File? selectedTreImage;
+      Uint8List? selectedTreWebImage; // For web
+
+      // Create a variable to track the index of the button/image pair
+      int imageIndex = _fieldsTre.length;
+
       setState(() {
         String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
 
         _fieldsTre.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: TextField(
-              controller: _controllerTre,
-              decoration: InputDecoration(
-                labelText: labelText,
-                border: OutlineInputBorder(),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _controllerTre,
+                  decoration: InputDecoration(
+                    labelText: labelText,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                if (i % 2 !=
+                    0) // Button and image picker only for 'Treretary Motto'
+                  StatefulBuilder(builder: (context, setStateImage) {
+                    return Column(
+                      children: [
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(7),
+                            backgroundColor: Colors.green[300],
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (kIsWeb) {
+                              // Web: Select and handle image as Uint8List
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedTreWebImage = result.files.first.bytes;
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            } else {
+                              // Desktop (Windows): Select and handle image as File
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedTreImage =
+                                    File(result.files.single.path!);
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            }
+                          },
+                          child: Text('Pick Candidate Image'),
+                        ),
+                        SizedBox(height: 10),
+                        // Display the selected image or a placeholder
+                        if (kIsWeb && selectedTreWebImage != null)
+                          Image.memory(
+                            selectedTreWebImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else if (!kIsWeb && selectedTreImage != null)
+                          Image.file(
+                            selectedTreImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else
+                          Text('No image selected'),
+                      ],
+                    );
+                  }),
+              ],
             ),
           ),
         );
@@ -259,23 +522,104 @@ class _AdminElectionState extends State<AdminElection> {
     }
   }
 
-  // Function to add 3 text fields for Auditor
+// Function to add 2 text fields and an image picker button for each Audretary candidate
   void _addThreeTextFieldsAud() {
     for (int i = 0; i < 2; i++) {
       TextEditingController _controllerAud = TextEditingController();
       _controllersAud.add(_controllerAud);
+
+      // Separate variables to store image data for web and desktop
+      File? selectedAudImage;
+      Uint8List? selectedAudWebImage; // For web
+
+      // Create a variable to track the index of the button/image pair
+      int imageIndex = _fieldsAud.length;
+
       setState(() {
         String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
 
         _fieldsAud.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: TextField(
-              controller: _controllerAud,
-              decoration: InputDecoration(
-                labelText: labelText,
-                border: OutlineInputBorder(),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _controllerAud,
+                  decoration: InputDecoration(
+                    labelText: labelText,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                if (i % 2 !=
+                    0) // Button and image picker only for 'Audretary Motto'
+                  StatefulBuilder(builder: (context, setStateImage) {
+                    return Column(
+                      children: [
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.all(7),
+                            backgroundColor: Colors.green[300],
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (kIsWeb) {
+                              // Web: Select and handle image as Uint8List
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedAudWebImage = result.files.first.bytes;
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            } else {
+                              // Desktop (Windows): Select and handle image as File
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedAudImage =
+                                    File(result.files.single.path!);
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            }
+                          },
+                          child: Text('Pick Candidate Image'),
+                        ),
+                        SizedBox(height: 10),
+                        // Display the selected image or a placeholder
+                        if (kIsWeb && selectedAudWebImage != null)
+                          Image.memory(
+                            selectedAudWebImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else if (!kIsWeb && selectedAudImage != null)
+                          Image.file(
+                            selectedAudImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else
+                          Text('No image selected'),
+                      ],
+                    );
+                  }),
+              ],
             ),
           ),
         );
@@ -294,23 +638,104 @@ class _AdminElectionState extends State<AdminElection> {
     }
   }
 
-  // Function to add 3 text fields for Data Representative
+  // Function to add 2 text fields and an image picker button for each Dataretary candidate
   void _addThreeTextFieldsData() {
     for (int i = 0; i < 2; i++) {
       TextEditingController _controllerData = TextEditingController();
       _controllersData.add(_controllerData);
+
+      // Separate variables to store image data for web and desktop
+      File? selectedDataImage;
+      Uint8List? selectedDataWebImage; // For web
+
+      // Create a variable to track the index of the button/image pair
+      int imageIndex = _fieldsData.length;
+
       setState(() {
         String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
 
         _fieldsData.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: TextField(
-              controller: _controllerData,
-              decoration: InputDecoration(
-                labelText: labelText,
-                border: OutlineInputBorder(),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _controllerData,
+                  decoration: InputDecoration(
+                    labelText: labelText,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                if (i % 2 !=
+                    0) // Button and image picker only for 'Dataretary Motto'
+                  StatefulBuilder(builder: (context, setStateImage) {
+                    return Column(
+                      children: [
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(7),
+                            backgroundColor: Colors.green[300],
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (kIsWeb) {
+                              // Web: Select and handle image as Uint8List
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedDataWebImage = result.files.first.bytes;
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            } else {
+                              // Desktop (Windows): Select and handle image as File
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedDataImage =
+                                    File(result.files.single.path!);
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            }
+                          },
+                          child: Text('Pick Candidate Image'),
+                        ),
+                        SizedBox(height: 10),
+                        // Display the selected image or a placeholder
+                        if (kIsWeb && selectedDataWebImage != null)
+                          Image.memory(
+                            selectedDataWebImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else if (!kIsWeb && selectedDataImage != null)
+                          Image.file(
+                            selectedDataImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else
+                          Text('No image selected'),
+                      ],
+                    );
+                  }),
+              ],
             ),
           ),
         );
@@ -329,23 +754,104 @@ class _AdminElectionState extends State<AdminElection> {
     }
   }
 
-  // Function to add 3 text fields for IT Representative
+  // Function to add 2 text fields and an image picker button for each ITRretary candidate
   void _addThreeTextFieldsITR() {
     for (int i = 0; i < 2; i++) {
       TextEditingController _controllerITR = TextEditingController();
       _controllersITR.add(_controllerITR);
+
+      // Separate variables to store image ITR for web and desktop
+      File? selectedITRImage;
+      Uint8List? selectedITRWebImage; // For web
+
+      // Create a variable to track the index of the button/image pair
+      int imageIndex = _fieldsITR.length;
+
       setState(() {
         String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
 
         _fieldsITR.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: TextField(
-              controller: _controllerITR,
-              decoration: InputDecoration(
-                labelText: labelText,
-                border: OutlineInputBorder(),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _controllerITR,
+                  decoration: InputDecoration(
+                    labelText: labelText,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                if (i % 2 !=
+                    0) // Button and image picker only for 'ITRretary Motto'
+                  StatefulBuilder(builder: (context, setStateImage) {
+                    return Column(
+                      children: [
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(7),
+                            backgroundColor: Colors.green[300],
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (kIsWeb) {
+                              // Web: Select and handle image as Uint8List
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedITRWebImage = result.files.first.bytes;
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            } else {
+                              // Desktop (Windows): Select and handle image as File
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedITRImage =
+                                    File(result.files.single.path!);
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            }
+                          },
+                          child: Text('Pick Candidate Image'),
+                        ),
+                        SizedBox(height: 10),
+                        // Display the selected image or a placeholder
+                        if (kIsWeb && selectedITRWebImage != null)
+                          Image.memory(
+                            selectedITRWebImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else if (!kIsWeb && selectedITRImage != null)
+                          Image.file(
+                            selectedITRImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else
+                          Text('No image selected'),
+                      ],
+                    );
+                  }),
+              ],
             ),
           ),
         );
@@ -364,23 +870,104 @@ class _AdminElectionState extends State<AdminElection> {
     }
   }
 
-  // Function to add 3 text fields for ISR
+  // Function to add 2 text fields and an image picker button for each ISRretary candidate
   void _addThreeTextFieldsISR() {
     for (int i = 0; i < 2; i++) {
       TextEditingController _controllerISR = TextEditingController();
       _controllersISR.add(_controllerISR);
+
+      // Separate variables to store image ISR for web and desktop
+      File? selectedISRImage;
+      Uint8List? selectedISRWebImage; // For web
+
+      // Create a variable to track the index of the button/image pair
+      int imageIndex = _fieldsISR.length;
+
       setState(() {
         String labelText = i % 2 == 0 ? 'Candidate ' : 'Motto ';
 
         _fieldsISR.add(
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: TextField(
-              controller: _controllerISR,
-              decoration: InputDecoration(
-                labelText: labelText,
-                border: OutlineInputBorder(),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _controllerISR,
+                  decoration: InputDecoration(
+                    labelText: labelText,
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                if (i % 2 !=
+                    0) // Button and image picker only for 'ISRretary Motto'
+                  StatefulBuilder(builder: (context, setStateImage) {
+                    return Column(
+                      children: [
+                        SizedBox(height: 10),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(7),
+                            backgroundColor: Colors.green[300],
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () async {
+                            if (kIsWeb) {
+                              // Web: Select and handle image as Uint8List
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedISRWebImage = result.files.first.bytes;
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            } else {
+                              // Desktop (Windows): Select and handle image as File
+                              FilePickerResult? result =
+                                  await FilePicker.platform.pickFiles(
+                                type: FileType.image,
+                                allowMultiple: false,
+                              );
+
+                              if (result != null) {
+                                selectedISRImage =
+                                    File(result.files.single.path!);
+                                setStateImage(
+                                    () {}); // Update state to display image
+                              }
+                            }
+                          },
+                          child: Text('Pick Candidate Image'),
+                        ),
+                        SizedBox(height: 10),
+                        // Display the selected image or a placeholder
+                        if (kIsWeb && selectedISRWebImage != null)
+                          Image.memory(
+                            selectedISRWebImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else if (!kIsWeb && selectedISRImage != null)
+                          Image.file(
+                            selectedISRImage!,
+                            height: 100,
+                            width: 100,
+                            fit: BoxFit.cover,
+                          )
+                        else
+                          Text('No image selected'),
+                      ],
+                    );
+                  }),
+              ],
             ),
           ),
         );
