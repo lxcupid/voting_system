@@ -4,6 +4,8 @@ import 'package:voting_system/core/providers/selected_candidate_provider.dart'; 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:voting_system/screens/dashboard/studentDashboard/votingsystem_dashboard.dart';
 import 'package:voting_system/screens/votingsystem_login.dart';
+import 'package:voting_system/screens/votingsystem_signup.dart';
+import 'package:voting_system/screens/votingsystem_verifyOTP.dart';
 
 void main() {
   runApp(

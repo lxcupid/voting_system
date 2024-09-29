@@ -6,6 +6,7 @@ import 'dart:convert'; // For JSON encoding
 import 'package:voting_system/screens/votingsystem_verifyotp.dart';
 import 'package:voting_system/widgets/login_dropdown.dart';
 import 'package:voting_system/widgets/login_textformfield.dart';
+import 'global.dart' as globals; // Import the globals file
 
 class VotingsystemSignup extends StatefulWidget {
   const VotingsystemSignup({super.key});
@@ -66,12 +67,56 @@ class _VotingsystemSignupState extends State<VotingsystemSignup> {
         }),
       );
 
+      globals.globalEmail =
+          emailController.text; // Set the global email variable
+
       if (response.statusCode == 201) {
-        // User created successfully
-        print('Successfull');
+        // Navigate to Verify OTP screen with email
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VotingsystemVerifyotp(),
+          ),
+        );
       } else {
-        // Handle error
-        throw Exception('Failed to create user: ${response.body}');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return Container(
+              decoration: BoxDecoration(),
+              child: AlertDialog(
+                title: const Text(
+                  "Failed",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                content: const Text("User already Exist"),
+                actions: <Widget>[
+                  Container(
+                    width: 100,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.green,
+                    ),
+                    child: MaterialButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        "Ok",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
       }
     } catch (e) {
       print('Error creating user: $e');
@@ -172,6 +217,13 @@ class _VotingsystemSignupState extends State<VotingsystemSignup> {
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return "Email cannot be empty";
+                                  }
+                                  // Regular expression for validating email format
+                                  final RegExp emailRegex = RegExp(
+                                    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                                  );
+                                  if (!emailRegex.hasMatch(value)) {
+                                    return "Please enter a valid email address";
                                   }
                                   return null;
                                 },

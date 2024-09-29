@@ -1,9 +1,14 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http; // Import the http package
 import 'package:voting_system/screens/votingsystem_login.dart';
 import 'package:voting_system/widgets/login_textformfield.dart';
+import 'global.dart' as globals; // Import the globals file
 
 class VotingsystemVerifyotp extends StatefulWidget {
-  const VotingsystemVerifyotp({super.key});
+  const VotingsystemVerifyotp({
+    super.key,
+  });
 
   @override
   State<VotingsystemVerifyotp> createState() => _VotingsystemVerifyotpState();
@@ -12,6 +17,76 @@ class VotingsystemVerifyotp extends StatefulWidget {
 class _VotingsystemVerifyotpState extends State<VotingsystemVerifyotp> {
   final formKey1 = GlobalKey<FormState>();
   TextEditingController otpController = TextEditingController();
+
+  Future<void> verifyOtp(String otp) async {
+    final url = Uri.parse(
+        'http://localhost:8005/user/verify-otp'); // Replace with your actual API endpoint
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json', // Set the content type
+      },
+      body: jsonEncode({
+        'email': globals.globalEmail,
+        'otp': otp,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // OTP verified successfully
+      // Show success dialog
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Container(
+            decoration: BoxDecoration(),
+            child: AlertDialog(
+              title: const Text(
+                "Success",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: const Text("Sign Up Successful"),
+              actions: <Widget>[
+                Container(
+                  width: 100,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.green,
+                  ),
+                  child: MaterialButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const VotingsystemLogin()),
+                      );
+                    },
+                    child: const Text(
+                      "Ok",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    } else {
+      // OTP verification failed
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Center(child: Text("Invalid OTP"))),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,22 +142,9 @@ class _VotingsystemVerifyotpState extends State<VotingsystemVerifyotp> {
                                       true) {
                                     String otp = otpController.text;
 
-                                    // Check if credentials match the user list
-                                    if (otp.isEmpty) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                            content: Center(
-                                                child: Text("Invalid OTP"))),
-                                      );
-                                    } else {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                const VotingsystemLogin()),
-                                      );
-                                    }
+                                    // Call the verifyOtp function
+                                    await verifyOtp(
+                                        otp); // Use widget.email here
                                   }
                                 },
                                 child: const Text(

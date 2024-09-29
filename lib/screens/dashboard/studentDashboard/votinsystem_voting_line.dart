@@ -51,7 +51,8 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
     if (college != null) {
       // Fetch candidates based on college
       final response = await http.get(
-        Uri.parse('http://localhost:8005/user/candidates?college=$college'),
+        Uri.parse(
+            'http://localhost:8005/user/candidates/colleges?college=$college'),
       );
 
       if (response.statusCode == 200) {
@@ -66,6 +67,15 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
         itrepresentativeCandidates.clear();
         isrepresentativeCandidates.clear();
         allCandidates.clear(); // Clear previous combined list
+
+        // Check if candidatesJson is empty
+        if (candidatesJson.isEmpty) {
+          // Handle the empty case
+          print('No candidates found for the selected college.');
+          const Center(child: Text('No candidates available.'));
+          setState(() {});
+          return; // Exit the method if there are no candidates
+        }
 
         // Map candidates to their respective lists
         for (var candidateData in candidatesJson) {
@@ -101,8 +111,9 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
             default:
           }
         }
-        setState(
-            () {}); // Call setState to update the UI with the new candidates
+        setState(() {
+          // Call setState to update the UI with the new candidates
+        });
       } else {
         print('Failed to load candidates Voting line: ${response.statusCode}');
       }
@@ -255,6 +266,23 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                               Provider.of<SelectedCandidateProvider>(context,
                                       listen: false)
                                   .elected;
+
+                          if (selectedPresident == null &&
+                              selectedVicePresident == null &&
+                              selectedSecretary == null &&
+                              selectedTreasurer == null &&
+                              selectedDataPrivacy == null &&
+                              selectedITRepresentative == null &&
+                              selectedISRepresentative == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Please select at least one candidate before voting!'),
+                                duration: Duration(seconds: 2),
+                              ),
+                            );
+                            return; // Exit the method if no candidates are selected
+                          }
 
                           // Retrieve candidate names based on selected IDs
                           final presidentName = getCandidateNameById(
