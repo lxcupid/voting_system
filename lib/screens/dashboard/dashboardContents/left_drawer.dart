@@ -99,15 +99,34 @@ class CustomDrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: isSelected
-          ? Colors.green.withOpacity(0.2)
-          : Colors.transparent, // Change background color if selected
-      child: ListTile(
-        leading: Icon(icon, size: 30),
-        title:
-            isCollapsed ? null : Text(text), // Show text only if not collapsed
-        onTap: onTap,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        color: isSelected
+            ? Colors.green.withOpacity(0.2)
+            : Colors.transparent, // Change background color if selected
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        child: Row(
+          children: [
+            // Custom icon with fixed size
+            Container(
+              width: 40, // Set a fixed width for the icon
+              height: 40, // Set a fixed height for the icon
+              alignment: Alignment.center,
+              child: Icon(icon, size: 30), // Customize the icon size
+            ),
+            const SizedBox(width: 10), // Space between icon and text
+            // Show text only if not collapsed
+            if (!isCollapsed)
+              Text(
+                text,
+                style: TextStyle(
+                  fontSize: 16, // Customize font size
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

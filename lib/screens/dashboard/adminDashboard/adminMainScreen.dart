@@ -7,6 +7,7 @@ import 'package:voting_system/screens/dashboard/adminDashboard/admin_dashboard.d
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_election.dart';
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_history.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/admin_drawer.dart';
+import 'package:voting_system/screens/dashboard/dashboardContents/admin_home_header.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/home_header.dart';
 
 class Adminsystemdashboard extends StatefulWidget {
@@ -39,7 +40,7 @@ class _AdminsystemdashboardState extends State<Adminsystemdashboard> {
             flex: 3,
             child: Column(
               children: [
-                HomeHeader(
+                AdminHomeHeader(
                   onMenuPressed: toggleDrawer,
                   user: 'Admin',
                 ),

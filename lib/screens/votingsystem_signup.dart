@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http; // Import the http package
 import 'package:voting_system/core/models/college_model.dart';
-import 'package:voting_system/core/models/user_model.dart';
 import 'dart:convert'; // For JSON encoding
 import 'package:voting_system/screens/votingsystem_verifyotp.dart';
 import 'package:voting_system/widgets/login_dropdown.dart';

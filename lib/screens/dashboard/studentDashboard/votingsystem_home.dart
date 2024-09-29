@@ -13,25 +13,34 @@ class VotingsystemHome extends StatefulWidget {
 }
 
 class _VotingsystemHomeState extends State<VotingsystemHome> {
-  List<Candidate> filteredCandidates = [];
+  List<Candidate> candidates = []; // Store all candidates fetched from the API
+  List<Candidate> filteredCandidates =
+      []; // Store filtered candidates based on search
   String searchQuery = '';
 
-  Future<List<Candidate>> fetchCandidates() async {
+  Future<void> fetchCandidates() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? college = prefs.getString('college'); // Get the stored college
+    String? college = prefs.getString('college');
 
     if (college != null) {
       // Fetch candidates based on college
       final response = await http.get(
         Uri.parse(
-            'http://localhost:8005/user/candidates?college=$college'), // Use the college ID
+            'http://localhost:8005/user/candidates/colleges?college=$college'), // Use the college ID
       );
+
+      print('RESPONSE' + response.body);
+      print(candidates);
 
       if (response.statusCode == 200) {
         final List<dynamic> candidatesJson = json.decode(response.body);
-        return candidatesJson
-            .map((json) => Candidate.fromJson(json))
-            .toList(); // Convert JSON to Candidate objects
+        setState(() {
+          candidates = candidatesJson
+              .map((json) => Candidate.fromJson(json))
+              .toList(); // Convert JSON to Candidate objects
+          filteredCandidates =
+              candidates; // Initially, all candidates are shown
+        });
       } else {
         throw Exception('Failed to load candidates: ${response.statusCode}');
       }
@@ -43,11 +52,18 @@ class _VotingsystemHomeState extends State<VotingsystemHome> {
   void _filterCandidates(String query) {
     setState(() {
       searchQuery = query;
-      filteredCandidates = filteredCandidates
+      filteredCandidates = candidates
           .where((candidate) =>
               candidate.name.toLowerCase().contains(query.toLowerCase()))
           .toList();
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    filteredCandidates = candidates;
+    fetchCandidates(); // Fetch candidates when the screen loads
   }
 
   @override
@@ -75,21 +91,11 @@ class _VotingsystemHomeState extends State<VotingsystemHome> {
               onChanged: _filterCandidates, // Call the filtering method
             ),
           ),
-          // FutureBuilder to fetch candidates
+          // List of Candidates
           Expanded(
-            child: FutureBuilder<List<Candidate>>(
-              future: fetchCandidates(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No candidates found.'));
-                } else {
-                  filteredCandidates =
-                      snapshot.data!; // Update the filtered candidates
-                  return GridView.builder(
+            child: candidates.isEmpty
+                ? const Center(child: Text('NO CANDIDATES'))
+                : GridView.builder(
                     gridDelegate:
                         const SliverGridDelegateWithMaxCrossAxisExtent(
                       maxCrossAxisExtent: 350,
@@ -102,10 +108,7 @@ class _VotingsystemHomeState extends State<VotingsystemHome> {
                         candidate: filteredCandidates[index],
                       );
                     },
-                  );
-                }
-              },
-            ),
+                  ),
           ),
         ],
       ),

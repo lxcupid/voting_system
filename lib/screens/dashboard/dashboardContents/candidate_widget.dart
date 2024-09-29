@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:voting_system/core/models/candidate_model.dart';
 
@@ -5,8 +8,8 @@ class CandidateWidget extends StatelessWidget {
   final Candidate candidate;
   final double? imageHeight;
   final double? imageWidth;
-  final MainAxisAlignment alignment; // Change to non-nullable with default
-  final bool showMotto; // Parameter to control motto visibility
+  final MainAxisAlignment alignment;
+  final bool showMotto;
 
   const CandidateWidget({
     super.key,
@@ -14,7 +17,7 @@ class CandidateWidget extends StatelessWidget {
     this.showMotto = true,
     this.alignment = MainAxisAlignment.start,
     this.imageHeight = 200,
-    this.imageWidth = 150, // Default to start if not specified
+    this.imageWidth = 150,
   });
 
   @override
@@ -33,14 +36,21 @@ class CandidateWidget extends StatelessWidget {
             SizedBox(
               height: imageHeight,
               width: imageWidth,
-              child: Image.network(
-                candidate.image,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(child: Text('Image failed to load'));
-                },
-              ),
+              child: candidate.image
+                      .isNotEmpty // Check if the image string is not empty
+                  ? Center(
+                      child: Image.network(
+                        candidate.image, // Use the URL for the image
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(
+                              child: Text('Image failed to load'));
+                        },
+                      ),
+                    )
+                  : const Center(child: Text('No image available')),
             ),
+
             const SizedBox(height: 8), // Spacing
             Text(
               candidate.name,
