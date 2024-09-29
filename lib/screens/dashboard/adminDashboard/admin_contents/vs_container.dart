@@ -22,7 +22,7 @@ class vsContainer extends StatelessWidget {
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           SizedBox(
-            height: 15,
+            height: 10,
           ),
           Expanded(child: child)
         ],

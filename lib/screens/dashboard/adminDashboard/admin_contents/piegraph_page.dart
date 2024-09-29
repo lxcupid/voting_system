@@ -69,9 +69,7 @@ class CollegePieChart extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(
-          width: 300,
-          height: 300,
+        Expanded(
           child: PieChart(
             PieChartData(
               sections: data.map((PieChartModel model) {
