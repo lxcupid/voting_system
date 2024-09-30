@@ -1,67 +1,34 @@
-class AdminCandidate {
-  final String imageUrl;
-  final String name;
+class AdminCandidate1 {
+  final String candidateId; // Updated to match JSON key
+  final String fullname;
   final String position;
-  final int voteCount;
+  final String motto;
+  final String college;
+  final String electionId;
+  final int totalVotes; // New field to capture total votes
+  final String image; // New field for the candidate's image
 
-  AdminCandidate({required this.imageUrl, required this.name, required this.position, required this.voteCount});
+  AdminCandidate1({
+    required this.candidateId,
+    required this.fullname,
+    required this.position,
+    required this.motto,
+    required this.college,
+    required this.electionId,
+    required this.totalVotes, // Include total votes in the constructor
+    required this.image, // Include image in the constructor
+  });
+
+  factory AdminCandidate1.fromJson(Map<String, dynamic> json) {
+    return AdminCandidate1(
+      candidateId: json['candidate_id'],
+      fullname: json['fullname'],
+      position: json['position'],
+      motto: json['motto'],
+      college: json['college'],
+      electionId: json['election_id'],
+      totalVotes: json['total_votes'] ?? 0, // Handle null value with default
+      image: json['image'] ?? '', // Handle null value with default for image
+    );
+  }
 }
-
-List<AdminCandidate> adminCandidates = [
-  AdminCandidate(
-    imageUrl:
-    'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Andrzej_Person_Kancelaria_Senatu.jpg/1200px-Andrzej_Person_Kancelaria_Senatu.jpg',
-    name: 'John Doe',
-    position: 'President',
-    voteCount: 150
-  ),
-  AdminCandidate(
-    imageUrl:
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa4xjShh4ynJbrgYrW_aB4lhKSxeMzQ3cO_A&s',
-    name: 'Jane Smith',
-      position: 'President',
-      voteCount: 150
-  ),
-  AdminCandidate(
-    imageUrl:
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHr74Pjdj__bQPnZK-BFujbwgnP1t5PIqkig&s',
-    name: 'Alice Johnson',
-      position: 'Vice President',
-      voteCount: 150
-  ),
-  AdminCandidate(
-    imageUrl:
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa4xjShh4ynJbrgYrW_aB4lhKSxeMzQ3cO_A&s',
-    name: 'Patricia Moore',
-      position: 'Vice President',
-      voteCount: 150
-  ),
-  AdminCandidate(
-      imageUrl:
-      'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Andrzej_Person_Kancelaria_Senatu.jpg/1200px-Andrzej_Person_Kancelaria_Senatu.jpg',
-      name: 'John Doe',
-      position: 'Treasurer',
-      voteCount: 150
-  ),
-  AdminCandidate(
-      imageUrl:
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa4xjShh4ynJbrgYrW_aB4lhKSxeMzQ3cO_A&s',
-      name: 'Jane Smith',
-      position: 'Treasurer',
-      voteCount: 150
-  ),
-  AdminCandidate(
-      imageUrl:
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHr74Pjdj__bQPnZK-BFujbwgnP1t5PIqkig&s',
-      name: 'Alice Johnson',
-      position: 'Secretary',
-      voteCount: 150
-  ),
-  AdminCandidate(
-      imageUrl:
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQa4xjShh4ynJbrgYrW_aB4lhKSxeMzQ3cO_A&s',
-      name: 'Patricia Moore',
-      position: 'Secretary',
-      voteCount: 150
-  ),
-];

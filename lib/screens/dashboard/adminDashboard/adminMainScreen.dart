@@ -5,7 +5,6 @@ import 'package:voting_system/screens/dashboard/adminDashboard/admin_contents/da
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_contents/home_admin.dart';
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_contents/piegraph_page.dart';
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_dashboard.dart';
-import 'package:voting_system/screens/dashboard/adminDashboard/admin_election.dart';
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_history.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/admin_drawer.dart';
 import 'package:voting_system/screens/dashboard/dashboardContents/admin_home_header.dart';
@@ -79,7 +78,7 @@ class _AdminsystemdashboardState extends State<Adminsystemdashboard> {
   Widget getCurrentScreen() {
     switch (currentScreen) {
       case 'Dashboard':
-        return Dashboard();
+        return DashScreen();
       case 'History':
         return AdminHistory();
       case 'Colleges':

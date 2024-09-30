@@ -21,12 +21,17 @@ class _VotingsystemHomeState extends State<VotingsystemHome> {
   Future<void> fetchCandidates() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? college = prefs.getString('college');
+    int currentYear = DateTime.now().year; // Get the current year
+
+// Use a null-aware operator to avoid null issues
+    String electionID = (college ?? '') +
+        currentYear.toString(); // Concatenate with a fallback for null
 
     if (college != null) {
       // Fetch candidates based on college
       final response = await http.get(
         Uri.parse(
-            'http://localhost:8005/user/candidates/colleges?college=$college'), // Use the college ID
+            'http://localhost:8005/user/candidates/colleges?college=$college&electionID=$electionID'), // Use the college ID
       );
 
       if (response.statusCode == 200) {
