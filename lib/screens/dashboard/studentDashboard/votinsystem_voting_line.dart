@@ -327,7 +327,7 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                                     'isrepresentative_id':
                                         selectedISRepresentative?.candidateId,
                                     'election_id':
-                                        selectedPresident?.electionId ?? 0,
+                                        selectedPresident?.electionId,
                                     'student_id': studentId,
                                   };
 
@@ -359,7 +359,7 @@ class _VotingSystemVotingLineState extends State<VotinsystemVotingLine> {
                                           .showSnackBar(
                                         const SnackBar(
                                           content:
-                                              Text('Yoou havea already voted!'),
+                                              Text('You have already voted!'),
                                           duration: Duration(seconds: 1),
                                         ),
                                       );

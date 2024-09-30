@@ -78,41 +78,34 @@ class _VotingsystemSignupState extends State<VotingsystemSignup> {
           ),
         );
       } else {
+        // Check if the response has a specific error message
+        final responseBody = jsonDecode(response.body);
+        String errorMessage = responseBody['error'] ?? 'Failed to create user';
+
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return Container(
-              decoration: BoxDecoration(),
-              child: AlertDialog(
-                title: const Text(
-                  "Failed",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                content: const Text("User already Exist"),
-                actions: <Widget>[
-                  Container(
-                    width: 100,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
+            return AlertDialog(
+              title: const Text(
+                "Failed",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: Text(errorMessage), // Show specific error message
+              actions: <Widget>[
+                MaterialButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    "Ok",
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
                       color: Colors.green,
                     ),
-                    child: MaterialButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text(
-                        "Ok",
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           },
         );

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:http/http.dart' as http;
+import 'package:voting_system/screens/dashboard/adminDashboard/admin_contents/custom_container_widget.dart';
 
 void fetchCollegeNames(List<String> collegeNames, Function updateState) async {
   final String baseUrl = 'http://localhost:8005/user/colleges';
@@ -33,8 +34,7 @@ class Candidate {
   String college;
   String position;
   String electionId;
-  Uint8List?
-      image; // Use Uint8List for web; adjust as needed for other platforms
+  String? image; // Use Uint8List for web; adjust as needed for other platforms
 
   Candidate({
     required this.fullname,
@@ -120,16 +120,24 @@ class _AdminElectionState extends State<AdminElection> {
     final String apiUrl = 'http://localhost:8005/user/candidates';
 
     for (var candidate in candidates) {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(candidate.toJson()),
-      );
+      try {
+        final response = await http.post(
+          Uri.parse(apiUrl),
+          headers: {"Content-Type": "application/json"},
+          body:
+              jsonEncode(candidate.toJson()), // Ensure toJson exists and works
+        );
 
-      if (response.statusCode == 200) {
-        print("Candidate submitted: ${response.body}");
-      } else {
-        print("Failed to submit candidate: ${response.statusCode}");
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Candidate successfully submitted!")),
+          );
+          print("Candidate submitted: ${response.body}");
+        } else {
+          print("Failed to submit candidate: ${response.statusCode}");
+        }
+      } catch (e) {
+        print("Error submitting candidate: $e");
       }
     }
   }
@@ -156,10 +164,11 @@ class _AdminElectionState extends State<AdminElection> {
               college: 'CCST',
               position: "President", // Use appropriate position
               electionId: '1029',
-              image: selectedWebImage ??
-                  (selectedImage != null
-                      ? selectedImage!.readAsBytesSync()
-                      : null), // Adjust based on platform
+              image: selectedWebImage != null
+                  ? base64Encode(selectedWebImage!)
+                  : (selectedImage != null
+                      ? base64Encode(selectedImage!.readAsBytesSync())
+                      : null), // Convert image bytes to base64 string
             ),
           );
         });
@@ -1272,9 +1281,7 @@ class _AdminElectionState extends State<AdminElection> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        // for (var controller in _controllersPres) {
-                        //   print(controller.text);
-                        // }
+                        print(candidates);
                         submitCandidates();
                       },
                       child: Container(
@@ -1291,84 +1298,6 @@ class _AdminElectionState extends State<AdminElection> {
               ),
             ),
           const SizedBox(height: 10),
-        ],
-      ),
-    );
-  }
-}
-
-class CustomContainerWidget extends StatelessWidget {
-  final String positionText;
-  final String action1Text;
-  final String action2Text;
-  final VoidCallback onAction1Tap;
-  final VoidCallback onAction2Tap;
-  final List<Widget> fields;
-
-  const CustomContainerWidget({
-    Key? key,
-    required this.positionText,
-    required this.action1Text,
-    required this.action2Text,
-    required this.onAction1Tap,
-    required this.onAction2Tap,
-    required this.fields,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 15),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                positionText,
-                style:
-                    TextStyle(fontFamily: 'Arial', fontWeight: FontWeight.bold),
-              ),
-              Container(
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: onAction1Tap,
-                      child: Container(
-                        padding: EdgeInsets.all(7),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.green[300]),
-                        child: Text(
-                          action1Text,
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                    GestureDetector(
-                      onTap: onAction2Tap,
-                      child: Container(
-                        padding: EdgeInsets.all(7),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.red[300]),
-                        child: Text(action2Text,
-                            style: TextStyle(color: Colors.black)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          Container(
-            width: double.infinity,
-            child: Column(
-              children: fields,
-            ),
-          ),
         ],
       ),
     );

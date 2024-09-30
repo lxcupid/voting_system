@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class CustomDropdown extends StatefulWidget {
   final List<String> options;
   final String hintText;
+  final Color? backgroundColor;
   final String? selectedValue;
   final Function(String?)? onChanged;
   final double borderRadius;
@@ -16,6 +17,7 @@ class CustomDropdown extends StatefulWidget {
     this.onChanged,
     this.borderRadius = 8.0,
     this.textStyle,
+    this.backgroundColor = Colors.white,
   }) : super(key: key);
 
   @override
@@ -37,7 +39,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
       padding: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(widget.borderRadius),
-        color: Colors.white,
+        color: widget.backgroundColor,
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(

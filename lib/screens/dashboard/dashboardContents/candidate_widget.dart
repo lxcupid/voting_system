@@ -22,6 +22,17 @@ class CandidateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Decode the base64 or Uint8List byte data
+    Uint8List? imageBytes;
+    if (candidate.image.isNotEmpty) {
+      try {
+        imageBytes =
+            base64Decode(candidate.image); // Decoding if it's a base64 string
+      } catch (e) {
+        imageBytes = null;
+      }
+    }
+
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black, width: 1),
@@ -36,11 +47,10 @@ class CandidateWidget extends StatelessWidget {
             SizedBox(
               height: imageHeight,
               width: imageWidth,
-              child: candidate.image
-                      .isNotEmpty // Check if the image string is not empty
+              child: imageBytes != null && imageBytes.isNotEmpty
                   ? Center(
-                      child: Image.network(
-                        candidate.image, // Use the URL for the image
+                      child: Image.memory(
+                        imageBytes,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
                           return const Center(
@@ -50,7 +60,6 @@ class CandidateWidget extends StatelessWidget {
                     )
                   : const Center(child: Text('No image available')),
             ),
-
             const SizedBox(height: 8), // Spacing
             Text(
               candidate.name,

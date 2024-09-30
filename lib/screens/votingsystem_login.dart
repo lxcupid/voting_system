@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http; // Import the http package
 import 'package:flutter/material.dart';
 import 'package:voting_system/core/models/college_model.dart';
+import 'package:voting_system/screens/dashboard/adminDashboard/adminMainScreen.dart';
 import 'package:voting_system/screens/dashboard/studentDashboard/votingsystem_dashboard.dart';
 import 'package:voting_system/screens/votingsystem_signup.dart';
 import 'package:voting_system/widgets/login_dropdown.dart';
@@ -178,25 +179,47 @@ class _VotingsystemLoginState extends State<VotingsystemLogin> {
                             String idNumber = idNumberController.text;
                             String college = selectedValue ?? '';
 
-                            // Call the validateCredentials function
-                            bool isValid =
-                                await validateCredentials(idNumber, college);
-
-                            if (isValid) {
+                            // Check if the ID number is "00000" for admin access
+                            if (idNumber == '00000') {
+                              // Clear the input fields
                               idNumberController.clear();
                               nameController.clear();
+
+                              // Navigate to the admin dashboard
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        const VotingsystemDashboard()),
+                                  builder: (context) =>
+                                      const Adminsystemdashboard(), // Replace with your admin screen
+                                ),
                               );
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                              // Validate credentials for regular users
+                              bool isValid =
+                                  await validateCredentials(idNumber, college);
+
+                              if (isValid) {
+                                // Clear the input fields
+                                idNumberController.clear();
+                                nameController.clear();
+
+                                // Navigate to the voting system dashboard
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const VotingsystemDashboard(),
+                                  ),
+                                );
+                              } else {
+                                // Show error message for invalid ID or college
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
                                     content: Center(
-                                        child: Text("Invalid ID or college"))),
-                              );
+                                        child: Text("Invalid ID or college")),
+                                  ),
+                                );
+                              }
                             }
                           }
                         },

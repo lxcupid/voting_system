@@ -29,9 +29,6 @@ class _VotingsystemHomeState extends State<VotingsystemHome> {
             'http://localhost:8005/user/candidates/colleges?college=$college'), // Use the college ID
       );
 
-      print('RESPONSE' + response.body);
-      print(candidates);
-
       if (response.statusCode == 200) {
         final List<dynamic> candidatesJson = json.decode(response.body);
         setState(() {

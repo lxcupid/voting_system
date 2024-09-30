@@ -4,7 +4,7 @@ class Candidate {
   final String name;
   final String position;
   final String college; // College of the candidate
-  final int electionId; // Election ID for the candidate
+  final String electionId; // Election ID for the candidate
   final String motto; // Motto of the candidate (optional)
 
   Candidate({
