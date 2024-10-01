@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:voting_system/widgets/login_dropdown.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class AdminHistory extends StatefulWidget {
   const AdminHistory({super.key});
@@ -8,402 +11,191 @@ class AdminHistory extends StatefulWidget {
 }
 
 class _AdminHistoryState extends State<AdminHistory> {
-  String? selectedItem = 'CCST'; // Default selected item
+  String? selectedValue; // College
+  List<ElectionModel> colleges = []; // List to hold college data
+  List<CandidateModel> candidates = []; // List to hold candidate data
 
-  // Mapping of collages to elections and their corresponding names
-  final Map<String, List<Map<String, dynamic>>> collageMap = {
-    'CCST': [
-      {
-        'title': 'Election 2020 - CCST',
-        'names': [
-          'Alice',
-          'Bob',
-          'Charlie',
-          'Daisy',
-          'Ethan',
-          'Frank',
-          'Grace',
-          'Hannah'
-        ]
-      },
-      {
-        'title': 'Election 2021 - CCST',
-        'names': [
-          'Isaac',
-          'Jack',
-          'Kara',
-          'Leo',
-          'Mia',
-          'Nate',
-          'Olivia',
-          'Paul'
-        ]
-      },
-    ],
-    'COE': [
-      {
-        'title': 'Election 2022 - COE',
-        'names': ['Nad', 'Rose', 'Sam', 'Tina', 'Uma', 'Vera', 'Will', 'Xena']
-      },
-      {
-        'title': 'Election 2023 - COE',
-        'names': [
-          'Yara',
-          'Zane',
-          'Amy',
-          'Brad',
-          'Cathy',
-          'David',
-          'Ella',
-          'Fay'
-        ]
-      },
-    ],
-    'COA': [
-      {
-        'title': 'Election 2024 - COA',
-        'names': [
-          'Gina',
-          'Hank',
-          'Irene',
-          'Jake',
-          'Liam',
-          'Maya',
-          'Nora',
-          'Oscar'
-        ]
-      },
-      {
-        'title': 'Election 2025 - COA',
-        'names': [
-          'Penny',
-          'Quincy',
-          'Rita',
-          'Steve',
-          'Tina',
-          'Ursula',
-          'Vince',
-          'Will'
-        ]
-      },
-    ],
-    'CAS': [
-      {
-        'title': 'Election 2026 - CAS',
-        'names': [
-          'Xena',
-          'Yuri',
-          'Zara',
-          'Aaron',
-          'Bella',
-          'Carter',
-          'Diana',
-          'Eli'
-        ]
-      },
-      {
-        'title': 'Election 2027 - CAS',
-        'names': [
-          'Fiona',
-          'Gabe',
-          'Holly',
-          'Ian',
-          'Jade',
-          'Kyle',
-          'Lila',
-          'Mike'
-        ]
-      },
-    ],
-    'CTE': [
-      {
-        'title': 'Election 2028 - CTE',
-        'names': [
-          'Nina',
-          'Owen',
-          'Piper',
-          'Quin',
-          'Ray',
-          'Sophie',
-          'Toby',
-          'Uma'
-        ]
-      },
-      {
-        'title': 'Election 2029 - CTE',
-        'names': [
-          'Vera',
-          'Will',
-          'Xena',
-          'Yara',
-          'Zane',
-          'Alex',
-          'Becky',
-          'Clara'
-        ]
-      },
-    ],
-    'CTHM': [
-      {
-        'title': 'Election 2030 - CTHM',
-        'names': [
-          'John',
-          'Sarah',
-          'Michael',
-          'Jessica',
-          'David',
-          'Laura',
-          'James',
-          'Linda'
-        ]
-      },
-      {
-        'title': 'Election 2031 - CTHM',
-        'names': [
-          'Robert',
-          'Emily',
-          'Daniel',
-          'Sophia',
-          'Thomas',
-          'Isabella',
-          'Matthew',
-          'Emma'
-        ]
-      },
-    ],
-    'CAHS': [
-      {
-        'title': 'Election 2032 - CAHS',
-        'names': [
-          'Ethan',
-          'Ava',
-          'Oliver',
-          'Mia',
-          'Lucas',
-          'Charlotte',
-          'Henry',
-          'Amelia'
-        ]
-      },
-      {
-        'title': 'Election 2033 - CAHS',
-        'names': [
-          'Jack',
-          'Harper',
-          'Liam',
-          'Ella',
-          'Noah',
-          'Sofia',
-          'Jacob',
-          'Grace'
-        ]
-      },
-    ],
-    'CBA': [
-      {
-        'title': 'Election 2034 - CBA',
-        'names': [
-          'Charlotte',
-          'Matthew',
-          'David',
-          'Evelyn',
-          'Liam',
-          'Ella',
-          'Isaac',
-          'Sofia'
-        ]
-      },
-      {
-        'title': 'Election 2035 - CBA',
-        'names': [
-          'James',
-          'Amelia',
-          'Alexander',
-          'Harper',
-          'Henry',
-          'Scarlett',
-          'Michael',
-          'Victoria'
-        ]
-      },
-    ],
-    'CHK': [
-      {
-        'title': 'Election 2037 - CHK',
-        'names': [
-          'Daniel',
-          'Chloe',
-          'Jackson',
-          'Grace',
-          'Matthew',
-          'Aria',
-          'Gabriel',
-          'Nora'
-        ]
-      },
-      {
-        'title': 'Election 2037 - CHK',
-        'names': [
-          'Daniel',
-          'Chloe',
-          'Jackson',
-          'Grace',
-          'Matthew',
-          'Aria',
-          'Gabriel',
-          'Nora'
-        ]
-      },
-      {
-        'title': 'Election 2037 - CHK',
-        'names': [
-          'Daniel',
-          'Chloe',
-          'Jackson',
-          'Grace',
-          'Matthew',
-          'Aria',
-          'Gabriel',
-          'Nora'
-        ]
-      },
-    ],
-  };
+  @override
+  void initState() {
+    super.initState();
+    fetchColleges(); // Fetch colleges when the widget is initialized
+  }
+
+  // Function to fetch colleges from the API
+  Future<void> fetchColleges() async {
+    try {
+      final response = await http.get(Uri.parse(
+          'http://localhost:8005/user/elections')); // Replace with your API endpoint
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data =
+            json.decode(response.body); // Decode the JSON response
+        final List<dynamic> electionIds =
+            data['election_ids']; // Access the election_ids
+
+        setState(() {
+          colleges = electionIds
+              .map((id) => ElectionModel.fromJson(id))
+              .toList(); // Create ElectionModel objects
+        });
+      } else {
+        throw Exception('Failed to load colleges');
+      }
+    } catch (e) {
+      print('Error fetching colleges: $e');
+    }
+  }
+
+  // Function to fetch candidates based on the selected election ID
+  Future<void> fetchCandidates(String electionID) async {
+    try {
+      final response = await http.get(Uri.parse(
+          'http://localhost:8005/user/elections/history?electionID=$electionID')); // Replace with your API endpoint
+      if (response.statusCode == 200) {
+        final List<dynamic> candidateData =
+            json.decode(response.body); // Decode the JSON response
+
+        setState(() {
+          candidates = candidateData
+              .map((candidate) => CandidateModel.fromJson(candidate))
+              .toList(); // Create CandidateModel objects
+        });
+      } else {
+        throw Exception('Failed to load candidates');
+      }
+    } catch (e) {
+      print('Error fetching candidates: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final List<String> collage = collageMap.keys.toList();
-    List<Map<String, dynamic>> currentElections =
-        collageMap[selectedItem] ?? [];
-    return Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(width: 10),
-                const Text(
-                  'History of Elections',
-                  style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'Arial',
-                      fontWeight: FontWeight.bold),
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30),
-                  decoration: BoxDecoration(
-                      color: const Color.fromARGB(255, 215, 215, 215),
-                      borderRadius: BorderRadius.circular(15)),
-                  child: DropdownButton<String>(
-                    value: selectedItem,
-                    onChanged: (newValue) {
-                      setState(() {
-                        selectedItem = newValue;
-                      });
-                    },
-                    items: collage.map((item) {
-                      return DropdownMenuItem(
-                        value: item,
-                        child: Text(item),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
+    return Container(
+      padding: EdgeInsets.all(16), // Add padding if needed
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          // Dropdown positioned at the top right
+          Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              width: 400,
+              child: CustomDropdown(
+                backgroundColor: Colors.grey[100],
+                options: colleges.map((college) => college.electionId).toList(),
+                selectedValue: selectedValue,
+                hintText: 'Select Elections',
+                borderRadius: 12.0,
+                textStyle: const TextStyle(fontSize: 16),
+                onChanged: (value) {
+                  setState(() {
+                    selectedValue = colleges
+                        .firstWhere((college) => college.electionId == value)
+                        .electionId;
+                    fetchCandidates(
+                        selectedValue!); // Fetch candidates when a college is selected
+                  });
+                },
+              ),
             ),
-            SizedBox(height: 15),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: List.generate(currentElections.length, (index) {
-                final election = currentElections[index];
-                final electionTitle = election['title'] as String?;
-                final electionNames = election['names'] as List<String>;
-                return GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    width: double.infinity,
-                    margin: const EdgeInsets.only(bottom: 15),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 20),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.green),
-                      color: const Color.fromARGB(255, 255, 255, 255),
-                      borderRadius: BorderRadius.circular(20.0),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          electionTitle ?? '',
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black),
-                        ),
-                        SizedBox(height: 10),
-                        TextRow(names: electionNames),
-                      ],
-                    ),
-                  ),
-                );
-              }),
+          ),
+          SizedBox(height: 15),
+          Text(
+            'Candidates:',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 15),
+          // Display candidates if available
+          if (candidates.isNotEmpty) ...[
+            Expanded(
+              child: ListView.builder(
+                itemCount: candidates.length,
+                itemBuilder: (context, index) {
+                  final candidate = candidates[index];
+                  return CandidateCard(
+                    fullname: candidate.fullname,
+                    position: candidate.position,
+                  );
+                },
+              ),
             ),
           ],
-        ),
+        ],
       ),
     );
   }
 }
 
-class TextRow extends StatelessWidget {
-  final List<String> names;
+// Define the CandidateModel to hold candidate data
+class CandidateModel {
+  final String position;
+  final String fullname;
 
-  const TextRow({
-    super.key,
-    required this.names,
-  });
+  CandidateModel({required this.position, required this.fullname});
+
+  // Factory constructor to create a CandidateModel object from JSON
+  factory CandidateModel.fromJson(Map<String, dynamic> json) {
+    return CandidateModel(
+      position: json['position'],
+      fullname: json['fullname'],
+    );
+  }
+}
+
+// Updated ElectionModel to properly construct from JSON
+class ElectionModel {
+  final String electionId;
+
+  ElectionModel({required this.electionId});
+
+  // Factory constructor to create an ElectionModel object from JSON
+  factory ElectionModel.fromJson(String electionId) {
+    return ElectionModel(electionId: electionId);
+  }
+}
+
+class CandidateCard extends StatelessWidget {
+  final String fullname;
+  final String position;
+
+  const CandidateCard({
+    Key? key,
+    required this.fullname,
+    required this.position,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    List<String> positions = [
-      'President',
-      'Vice President',
-      'Secretary',
-      'Treasurer',
-      'Auditor',
-      'Data Privacy',
-      'IT Representative',
-      'IS Representative',
-    ];
-    return Row(
-      children: [
-        Column(
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      margin: EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero, // Set border radius to zero
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: List.generate(positions.length, (index) {
-            // Ensure to not exceed the length of names
-            if (index < names.length) {
-              return Row(
-                children: [
-                  Text(
-                    positions[index],
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-                  ),
-                  SizedBox(width: 10),
-                  Text(
-                    names[index],
-                    style: TextStyle(fontFamily: 'Arial', fontSize: 15),
-                  ),
-                ],
-              );
-            } else {
-              return Container(); // Return empty container if no name available
-            }
-          }),
+          children: [
+            Text(
+              '$position: ',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              fullname,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[700],
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }

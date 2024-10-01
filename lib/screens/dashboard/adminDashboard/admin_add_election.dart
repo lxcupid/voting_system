@@ -99,8 +99,6 @@ class _AdminAddElectionState extends State<AdminAddElection> {
         // Optionally clear fields or navigate
         nameController.clear();
         setState(() {
-          selectedValue = null;
-          selectedPosition = null;
           _imageFile = null;
           _base64Image = null;
         });

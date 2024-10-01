@@ -42,6 +42,7 @@ dependencies:
   fl_chart: ^0.69.0
   excel: ^4.0.6
   path_provider: ^2.1.4
+  dio: ^5.0.0
 
 dev_dependencies:
   flutter_test:

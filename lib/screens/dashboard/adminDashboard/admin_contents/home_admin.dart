@@ -1,7 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'dart:html' as html; // Import for web file handling
+import 'dart:io' as io;
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_contents/admin_candidate_model.dart';
 import 'package:voting_system/screens/dashboard/adminDashboard/admin_contents/admin_candidate_widgets.dart';
@@ -64,71 +69,99 @@ class _HomeAdminState extends State<HomeAdmin> {
     });
   }
 
-  Future<void> _exportToExcel() async {
+  Future<void> _exportToExcel(BuildContext context) async {
+    final Dio dio = Dio();
     try {
-      // Create an Excel document
-      var excel = Excel.createExcel();
+      // API endpoint URL for exporting the candidates
+      String url = 'http://localhost:8005/user/excel';
 
-      // Group candidates by college
-      Map<String, List<AdminCandidate1>> collegeGroups = {};
-      for (var candidate in filteredCandidates) {
-        collegeGroups.putIfAbsent(candidate.college, () => []).add(candidate);
-      }
-
-      // Create a sheet for each college
-      collegeGroups.forEach((college, candidates) {
-        // Create a new sheet for the college
-        Sheet sheet = excel[college];
-
-        // Add headers to the sheet
-        sheet.appendRow([
-          TextCellValue("Name"),
-          TextCellValue("Position"),
-          IntCellValue(0), // Placeholder for Total Votes
-        ]);
-
-        // Add candidate data to the sheet
-        for (var candidate in candidates) {
-          print('Adding candidate to $college: ${candidate.fullname}');
-          sheet.appendRow([
-            TextCellValue(candidate.fullname),
-            TextCellValue(candidate.position),
-            IntCellValue(candidate.totalVotes),
-          ]);
-        }
-      });
-
-      // Use the FilePicker to select the save location
-      String? filePath = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save Excel File',
-        fileName: 'candidates.xlsx',
+      // Show a downloading dialog or progress indicator
+      print("Showing dialog...");
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Row(
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text("Downloading Excel file..."),
+              ],
+            ),
+          );
+        },
       );
 
-      if (filePath != null) {
-        // Save the file
-        var file = File(filePath);
-        final excelBytes = await excel.encode();
+      // Make the GET request to get the file data
+      print("Starting download...");
+      Response response = await dio.get(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      );
 
-        if (excelBytes != null) {
-          await file.writeAsBytes(excelBytes);
-          print('File saved at: $filePath');
-          // Show a message indicating the file has been exported
+      print("Download complete, status code: ${response.statusCode}");
+
+      // Close the progress dialog
+      print("Closing dialog...");
+      Navigator.of(context).pop();
+
+      if (response.statusCode == 200) {
+        if (kIsWeb) {
+          // For web, create a blob and download it
+          final blob = html.Blob([
+            response.data
+          ], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+          final downloadUrl = html.Url.createObjectUrlFromBlob(blob);
+          final anchor = html.AnchorElement(href: downloadUrl)
+            ..setAttribute('download', 'candidates.xlsx')
+            ..click();
+          html.Url.revokeObjectUrl(downloadUrl); // Clean up after download
+
+          // Inform the user of a successful download
+          print("Download successful for web.");
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Candidates exported to Excel!')),
+            SnackBar(content: Text("Excel file downloaded successfully.")),
           );
         } else {
-          print('Failed to encode Excel data.');
+          // For desktop (Windows, macOS, Linux), save the file locally
+          String filePath = '';
+
+          // Get the directory based on the platform
+          if (io.Platform.isWindows ||
+              io.Platform.isLinux ||
+              io.Platform.isMacOS) {
+            // Use the desktop's Downloads folder or a suitable directory
+            filePath =
+                '${(await getDownloadsDirectory())!.path}/candidates.xlsx';
+          } else {
+            // Fallback for other platforms if needed
+            filePath =
+                '${(await getTemporaryDirectory()).path}/candidates.xlsx';
+          }
+
+          // Save the file to the local file system
+          final file = io.File(filePath);
+          await file.writeAsBytes(response.data);
+
+          // Inform the user of a successful download
+          print("Download successful for desktop. File saved at: $filePath");
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to encode Excel data.')),
+            SnackBar(
+                content: Text("Excel file downloaded successfully: $filePath")),
           );
         }
       } else {
-        print('User canceled the file picker.');
+        print("Failed to download file, status code: ${response.statusCode}");
+        throw Exception("Failed to download file");
       }
     } catch (e) {
-      print('Error occurred while exporting to Excel: $e');
+      print("Error occurred: $e");
+      // Close the progress dialog in case of an error
+      Navigator.of(context).pop();
+      // Show an error message
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An error occurred: $e')),
+        SnackBar(content: Text("Failed to download file: $e")),
       );
     }
   }
@@ -164,7 +197,10 @@ class _HomeAdminState extends State<HomeAdmin> {
                 SizedBox(width: 5),
                 IconButton(
                   icon: const Icon(Icons.download, color: Colors.green),
-                  onPressed: _exportToExcel,
+                  onPressed: () async {
+                    await _exportToExcel(
+                        context); // Use async/await to handle the Future
+                  },
                   tooltip: 'Export to Excel',
                 ),
               ],
